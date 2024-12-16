@@ -1,0 +1,23 @@
+// Copyright 2024 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+edition = "2023";
+
+package net.proto2.go.open2opaque.testdata.flag_edition_test4;
+
+import "google/protobuf/go_features.proto";
+
+option features.(pb.go).api_level = API_OPAQUE;
+
+message M1 {
+  option features.(pb.go).api_level = API_HYBRID;
+
+  string s = 1;
+}
+
+message M2 {
+  option features.(pb.go).api_level = API_OPEN;
+
+  string s = 1;
+}

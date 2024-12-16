@@ -1,0 +1,150 @@
+// Copyright 2024 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+edition = "2023";
+
+package net.proto2.go.open2opaque.o2o.test;
+
+import "google/protobuf/go_features.proto";
+
+message DoNotMigrateMe {
+  option features.(pb.go).api_level = API_OPEN;
+
+  bool b = 1;
+}
+
+message M2 {
+  option features.(pb.go).api_level = API_HYBRID;
+
+  bool b = 1;
+  bytes bytes = 2;
+  float f32 = 3;
+  double f64 = 4;
+  int32 i32 = 5;
+  int64 i64 = 6;
+  uint32 ui32 = 7;
+  uint64 ui64 = 8;
+  string s = 9;
+  M2 m = 10;
+  repeated int32 is = 11;
+  repeated M2 ms = 12;
+  map<string, bool> map = 29;
+  enum Enum {
+    E_VAL = 0;
+  }
+  Enum e = 13;
+  oneof oneof_field {
+    string string_oneof = 14;
+    int64 int_oneof = 15;
+    M2 msg_oneof = 16;
+    Enum enum_oneof = 17;
+    bytes bytes_oneof = 18;
+  }
+  oneof oneof_field2 {
+    string string_oneof2 = 19;
+    int64 int_oneof2 = 20;
+    M2 msg_oneof2 = 21;
+    Enum enum_oneof2 = 22;
+    bytes bytes_oneof2 = 23;
+  }
+  int32 build = 24;
+  int32 proto_message = 25;
+  int32 reset = 26;
+  int32 string = 27;
+  int32 descriptor = 28;
+}
+
+message OtherProto2 {
+  option features.(pb.go).api_level = API_HYBRID;
+
+  bool b = 1;
+  bytes bytes = 2;
+  float f32 = 3;
+  double f64 = 4;
+  int32 i32 = 5;
+  int64 i64 = 6;
+  uint32 ui32 = 7;
+  uint64 ui64 = 8;
+  string s = 9;
+  OtherProto2 m = 10;
+  repeated int32 is = 11;
+  repeated OtherProto2 ms = 12;
+  map<string, bool> map = 29;
+  enum OtherEnum {
+    E_VAL = 0;
+  }
+  OtherEnum e = 13;
+  oneof oneof_field {
+    string string_oneof = 14;
+    int64 int_oneof = 15;
+    OtherProto2 msg_oneof = 16;
+    OtherEnum enum_oneof = 17;
+    bytes bytes_oneof = 18;
+  }
+  oneof oneof_field2 {
+    string string_oneof2 = 19;
+    int64 int_oneof2 = 20;
+    OtherProto2 msg_oneof2 = 21;
+    OtherEnum enum_oneof2 = 22;
+    bytes bytes_oneof2 = 23;
+  }
+  int32 build = 24;
+  int32 proto_message = 25;
+  int32 reset = 26;
+  int32 string = 27;
+  int32 descriptor = 28;
+}
+
+message M2Outer {
+  option features.(pb.go).api_level = API_HYBRID;
+
+  message MInner {
+    option features.(pb.go).api_level = API_HYBRID;
+
+    oneof inner_oneof {
+      string string_inner = 19;
+      int64 int_inner = 20;
+    }
+  }
+  oneof outer_oneof {
+    MInner inner_msg = 1;
+    string string_oneof = 2;
+  }
+}
+
+message ConflictingOneof {
+  option features.(pb.go).api_level = API_HYBRID;
+
+  message Sub {
+    option features.(pb.go).api_level = API_HYBRID;
+  }
+
+  oneof included {
+    Sub sub = 1;
+    string otherwise = 2;
+  }
+
+  message DeepSub {
+    option features.(pb.go).api_level = API_HYBRID;
+
+    message Sub {
+      option features.(pb.go).api_level = API_HYBRID;
+    }
+
+    oneof deeply_included {
+      Sub sub = 1;
+      string otherwise = 3;
+    }
+  }
+}
+
+message SetterNameConflict {
+  option features.(pb.go).api_level = API_HYBRID;
+
+  int32 stat = 1;
+  int32 set_stat = 2;
+  int32 get_stat = 3;
+  int32 has_stat = 4;
+  int32 clear_stat = 5;
+}

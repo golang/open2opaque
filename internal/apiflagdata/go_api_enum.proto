@@ -1,0 +1,17 @@
+// Copyright 2024 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+edition = "2023";
+
+package net.proto2.go.open2opaque.apiflagdata;
+
+enum GoAPI {
+  reserved 5;
+
+  GO_API_UNSPECIFIED = 0;
+  INVALID = 1;
+  OPEN_V1 = 2;
+  OPEN_TO_OPAQUE_HYBRID = 3;
+  OPAQUE_V0 = 4;
+}

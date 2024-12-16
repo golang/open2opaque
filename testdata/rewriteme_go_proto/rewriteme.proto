@@ -1,0 +1,14 @@
+// Copyright 2024 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Type information for this package is provided by an offline job. Hence
+// changes here require the job to run before it can be used in tests.
+syntax = "proto2";
+
+package rewriteme;
+
+message M {
+  optional string s1 = 1;
+  optional string s2 = 2;
+}

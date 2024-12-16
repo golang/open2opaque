@@ -1,0 +1,25 @@
+// Copyright 2024 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+edition = "2023";
+
+package net.proto2.go.open2opaque.testdata.flag_edition_test5;
+
+import "google/protobuf/go_features.proto";
+
+option features.(pb.go).api_level = API_HYBRID;
+
+message M1 {
+  // Leading comment on message should not be misplaced
+  // when API flag is inserted.
+  int32 int_field = 1;
+}
+
+message M2 {
+  /**
+   * Leading block comment on message should not be misplaced
+   * when API flag is inserted.
+   */
+  int32 int_field = 1;
+}

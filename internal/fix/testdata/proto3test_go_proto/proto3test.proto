@@ -1,0 +1,41 @@
+// Copyright 2024 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+syntax = "proto3";
+
+package net.proto2.go.open2opaque.o2o.test3;
+
+message M3 {
+
+  bool b = 1;
+  bytes bytes = 2;
+  float f32 = 3;
+  double f64 = 4;
+  int32 i32 = 5;
+  int64 i64 = 6;
+  uint32 ui32 = 7;
+  uint64 ui64 = 8;
+  string s = 9;
+  M3 m = 10;
+  repeated int32 is = 11;
+  repeated M3 ms = 12;
+  map<string, bool> map = 29;
+  enum Enum {
+    E_VAL = 0;
+  }
+  Enum e = 13;
+  oneof oneof_field {
+    string string_oneof = 14;
+    int64 int_oneof = 15;
+    M3 msg_oneof = 16;
+    Enum enum_oneof = 17;
+    bytes bytes_oneof = 18;
+    int32 build = 24;
+    string proto_message = 25;
+    string reset = 26;
+    string string = 27;
+    string descriptor = 28;
+  }
+  int32 second_i32 = 30;
+}

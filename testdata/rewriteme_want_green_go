@@ -1,0 +1,20 @@
+// Package rewriteme is used for end to end test of the open2opaque program.
+package rewriteme
+
+import (
+	rpb "google.golang.org/open2opaque/internal/fix/testdata/rewriteme_go_proto"
+
+	"google.golang.org/protobuf/proto"
+)
+
+func green() *rpb.M {
+	return rpb.MMaker{S1: proto.String("")}.Make()
+}
+
+func yellow(m *rpb.M) {
+	m.S1, m.S2 = proto.String(""), proto.String("")
+}
+
+func red(m1, m2 *rpb.M) {
+	m1.S1 = m2.S1
+}

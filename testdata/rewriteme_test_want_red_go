@@ -1,0 +1,12 @@
+package rewriteme
+
+import (
+	"testing"
+
+	rpb "google.golang.org/open2opaque/internal/fix/testdata/rewriteme_go_proto"
+	"google.golang.org/protobuf/proto"
+)
+
+func Test(t *testing.T) {
+	_ = rpb.MMaker{S1: proto.String("")}.Make()
+}

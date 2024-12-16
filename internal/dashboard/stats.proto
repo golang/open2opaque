@@ -1,0 +1,318 @@
+// Copyright 2024 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+edition = "2023";
+
+package net.proto2.go.open2opaque.stats;
+
+import "google/protobuf/go_features.proto";
+
+option features.field_presence = IMPLICIT;
+
+option features.(pb.go).api_level = API_HYBRID;
+
+// Entry represents a single usage of a proto type. For example, a
+// single field access, method call, use as a type, etc. We collect
+// entries and analyze them offline to generate various statistics
+// (e.g. number of direct field accesses per package) about the
+// migration to opaque Go protocol buffer API.
+message Entry {
+  // If status is not set or empty then all other fields should be set
+  // and describe a single usage of a protocol buffer type in Go.
+  //
+  // If status is not empty then:
+  //   - status.error says what went wrong, and
+  //   - location.package says which package couldn't be processed
+  Status status = 1;
+
+  // Location in Go code. Always set. Location.package is always
+  // non-empty.
+  Location location = 2;
+
+  // Rewrite level after which this entry was captured.
+  RewriteLevel level = 3;
+
+  // Go type representing a protocol buffer type.
+  Type type = 4;
+
+  // Go expression which leads to this entry.
+  Expression expr = 5;
+
+  // Describes how a protocol buffer is used (e.g. direct field access).
+  Use use = 6;
+
+  // Source of the information. For debugging purposes.
+  Source source = 7;
+}
+
+// Location represents location of an expression in a Go file.
+message Location {
+  // Full name of a Go package
+  string package = 1;
+
+  // path to a Go file
+  string file = 2;
+
+  // Whether the file is a generated file.
+  bool is_generated_file = 3;
+
+  // Start of the expression.
+  Position start = 4;
+
+  // End of the expression.
+  Position end = 5;
+}
+
+// Position describes a position in a Go file.
+message Position {
+  int64 line = 1;
+  int64 column = 2;
+}
+
+// Status specifies an error that occurred. Empty error indicates
+// success.
+message Status {
+  enum Type {
+    UNSPECIFIED_TYPE = 0;
+    OK = 1;
+    SKIP = 2;
+    FAIL = 3;
+  }
+
+  Type type = 1;
+  string error = 2;
+}
+
+// RewriteLevel represents rewrite level after which entries are
+// collected. For example, GREEN means that the tool does a green
+// rewrite and analyzes the result to create entries.
+enum RewriteLevel {
+  REWRITE_LEVEL_UNSPECIFIED = 0;
+  NONE = 1;
+  GREEN = 2;
+  YELLOW = 3;
+  RED = 4;
+}
+
+// Type represents a Go name for a protocol buffer type.
+message Type {
+  // The short name of the Go type representing the protocol buffer
+  // type. For example: "qem_go_proto.QueryEventMessage".
+  string short_name = 1;
+
+  // A fully qualified name of the Go type representing the protocol
+  // buffer type.
+  string long_name = 2;
+}
+
+// Expression describes a Go expression.
+message Expression {
+  // go/ast expression type (e.g. "*ast.Ident").
+  string type = 1;
+
+  // go/ast expression type of the parent.
+  string parent_type = 2;
+}
+
+// Use describes a use of a protocol buffer type in Go.
+message Use {
+  enum Type {
+    TYPE_UNSPECIFIED = 0;
+    DIRECT_FIELD_ACCESS = 1;
+    METHOD_CALL = 2;
+    CONSTRUCTOR = 3;
+    CONVERSION = 4;
+    TYPE_ASSERTION = 5;
+    TYPE_DEFINITION = 6;
+    EMBEDDING = 7;
+    INTERNAL_FIELD_ACCESS = 8;
+    REFLECT_CALL = 9;
+    SHALLOW_COPY = 10;
+    BUILD_DEPENDENCY = 11;
+  }
+
+  Type type = 1;
+  FieldAccess direct_field_access = 2;
+  MethodCall method_call = 3;
+  Constructor constructor = 4;
+  Conversion conversion = 5;
+  FuncArg func_arg = 6;
+  TypeAssertion type_assertion = 7;
+  TypeDefinition type_definition = 8;
+  Embedding embedding = 9;
+  FieldAccess internal_field_access = 10;
+  ReflectCall reflect_call = 11;
+  ShallowCopy shallow_copy = 12;
+}
+
+// ReflectCall represents a call to the Go reflection API.
+message ReflectCall {
+  // Information about all frames leading to the reflection call.
+  //
+  // A callstack usually looks like:
+  //
+  //    reflect.Value.Field      // the function triggering the log
+  //    reflect.F1               // more functions
+  //    ...                      // in the
+  //    reflect.Fn               // reflect package
+  //    import/path.Caller       // (1) fn: calls into the reflect package
+  //    import/path.C1           // more functions
+  //    ...                      // in the same package
+  //    import/path.Cn1          // as fn
+  //    ancestor/import.Ancestor // (2) caller: calls into fn's package
+  //    ...                      // more frames
+  //
+  // The frames field has information about all frames but we also
+  // store a few selected frames separately to make it easier to write
+  // queries:
+  //   (1) caller is the last function before the reflection package
+  //   (2) ancestor is the last function from a different package than caller
+  //
+  // The frames field contains at least one frame (a function in the
+  // reflect package) but fn and caller may be unset.
+  repeated Frame frames = 1;
+  Frame fn = 2;
+  Frame caller = 3;
+}
+
+// Frame represents information about a single frame in a Go
+// stacktrace.
+message Frame {
+  // Fully qualified function name. For example:
+  //   net/http.Error
+  string function = 1;
+
+  // true if the function is exported.
+  bool is_exported = 6;
+
+  // Packed in which the function is defined.
+  string package = 2;
+
+  // path to the source file defining the function.
+  //
+  // For standard-library, the path is relative to the src/
+  // directory (e.g. net/http/server.go).
+  //
+  string file = 3;
+
+  // Line number, together with file, is the location where function
+  // is defined.
+  string line = 4;
+
+  // index of the frame in the reflect_call.frames repeated field.
+  //
+  // This exists to make SQL queries easier.
+  int64 index = 5;
+
+  // index of the frame across consecutive frames in the same package.
+  //
+  // This exists to make SQL queries easier.
+  int64 pkg_index = 7;
+}
+
+message FieldAccess {
+  string field_name = 1;
+  Type field_type = 2;
+}
+
+message MethodCall {
+  string method = 1;
+
+  enum Type {
+    INVALID = 0;
+    GET_ONEOF = 1;
+    GET_BUILD = 2;
+  }
+
+  Type type = 2;
+}
+
+message Constructor {
+  enum Type {
+    TYPE_UNSPECIFIED = 0;
+    EMPTY_LITERAL = 1;
+    NONEMPTY_LITERAL = 2;
+    BUILDER = 3;
+  }
+
+  Type type = 1;
+}
+
+message Conversion {
+  // The type of the conversion. For example:
+  //   interface{}
+  //   proto.Message
+  //   unsafe.Pointer
+  string dest_type_name = 1;
+
+  // Describes the called function. It is set if context==CALL_ARGUMENT.
+  FuncArg func_arg = 3;
+
+  enum Context {
+    CONTEXT_UNSPECIFIED = 0;
+    CALL_ARGUMENT = 1;
+    RETURN_VALUE = 2;
+    ASSIGNMENT = 3;
+    EXPLICIT = 4;
+    COMPOSITE_LITERAL_ELEMENT = 5;
+    CHAN_SEND = 6;
+    FUNC_RET = 7;
+  }
+
+  Context context = 2;
+}
+
+message FuncArg {
+  // The name of the called function.
+  // For example: "Clone".
+  //
+  // An empty string means that analysis couldn't determine which
+  // function is called (this could happen for indirect calls).
+  string function_name = 1;
+
+  // Full package path containing the called function.
+  //
+  // An empty string means that analysis couldn't determine which
+  // function is called (this could happen for indirect calls).
+  string package_path = 2;
+
+  // Signature of the called function.
+  // For example: "func(m interface{}) interface{}".
+  string signature = 3;
+}
+
+message TypeAssertion {
+  // The type of the expression whose type is being asserted.
+  Type src_type = 1;
+}
+
+message TypeDefinition {
+  // new_type describes the newly defined type.
+  Type new_type = 1;
+}
+
+message Embedding {
+  int64 field_index = 1;
+}
+
+message Source {
+  string file = 1;
+}
+
+// ShallowCopy represents a shallow copy of protocol buffers.
+//
+// For example: "*m2 = *m1" for m1, m2 being protocol buffer messages
+// (pointers to Go structs generated by the proto generor).
+message ShallowCopy {
+  enum Type {
+    TYPE_UNSPECIFIED = 0;
+    ASSIGN = 1;
+    CALL_ARGUMENT = 2;
+    FUNC_RET = 3;
+    COMPOSITE_LITERAL_ELEMENT = 4;
+    CHAN_SEND = 5;
+  }
+
+  Type type = 1;
+}
