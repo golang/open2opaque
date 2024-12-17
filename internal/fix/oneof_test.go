@@ -1001,9 +1001,9 @@ _ = &pb2.M2{OneofField: &pb2.M2_BytesOneof{BytesOneof: nil}}
 				Red: `
 _ = pb2.M2_builder{BytesOneof: []byte("hello")}.Build()
 _ = pb2.M2_builder{BytesOneof: []byte{}}.Build()
-_ = pb2.M2_builder{BytesOneof: protooneofdefault.ValueOrDefaultBytes(bytes)}.Build()
+_ = pb2.M2_builder{BytesOneof: proto.ValueOrDefaultBytes(bytes)}.Build()
 _ = pb2.M2_builder{BytesOneof: []byte("hello")}.Build()
-_ = pb2.M2_builder{BytesOneof: protooneofdefault.ValueOrDefaultBytes(bytes)}.Build()
+_ = pb2.M2_builder{BytesOneof: proto.ValueOrDefaultBytes(bytes)}.Build()
 _ = pb2.M2_builder{BytesOneof: []byte{}}.Build()
 _ = pb2.M2_builder{BytesOneof: []byte{}}.Build()
 _ = pb2.M2_builder{BytesOneof: []byte{}}.Build()
@@ -1095,9 +1095,9 @@ m2.OneofField = &pb2.M2_BytesOneof{BytesOneof: nil}
 `,
 			Red: `
 m2.SetBytesOneof([]byte("hello"))
-m2.SetBytesOneof(protooneofdefault.ValueOrDefaultBytes(bytes))
+m2.SetBytesOneof(proto.ValueOrDefaultBytes(bytes))
 m2.SetBytesOneof([]byte("hello"))
-m2.SetBytesOneof(protooneofdefault.ValueOrDefaultBytes(bytes))
+m2.SetBytesOneof(proto.ValueOrDefaultBytes(bytes))
 m2.SetBytesOneof([]byte{})
 m2.SetBytesOneof([]byte{})
 m2.SetBytesOneof([]byte{})
@@ -1144,10 +1144,10 @@ m2.OneofField = &pb2.M2_MsgOneof{m2h3}
 			Yellow: `
 m2h2 := &pb2.M2{}
 m2h2.SetB(true)
-m2.SetMsgOneof(protooneofdefault.ValueOrDefault(m2h2))
+m2.SetMsgOneof(proto.ValueOrDefault(m2h2))
 m2h3 := &pb2.M2{}
 m2h3.SetB(true)
-m2.SetMsgOneof(protooneofdefault.ValueOrDefault(m2h3))
+m2.SetMsgOneof(proto.ValueOrDefault(m2h3))
 `,
 		},
 	}, {
@@ -1241,7 +1241,7 @@ m2h2 := &pb2.M2{}
 m2h2.SetB(true) // end of B line
 m2h3 := &pb2.M2{}
 // Comment above MsgOneof
-m2h3.SetMsgOneof(protooneofdefault.ValueOrDefault(m2h2)) // end of MsgOneof line
+m2h3.SetMsgOneof(proto.ValueOrDefault(m2h2)) // end of MsgOneof line
 _ = m2h3
 `,
 		},
@@ -1259,8 +1259,8 @@ m2.OneofField = &pb2.M2_MsgOneof{MsgOneof: msg}
 m2.OneofField = &pb2.M2_MsgOneof{msg}
 `,
 			Yellow: `
-m2.SetMsgOneof(protooneofdefault.ValueOrDefault(msg))
-m2.SetMsgOneof(protooneofdefault.ValueOrDefault(msg))
+m2.SetMsgOneof(proto.ValueOrDefault(msg))
+m2.SetMsgOneof(proto.ValueOrDefault(msg))
 `,
 		},
 	}, {
@@ -1277,8 +1277,8 @@ m2.OneofField = &pb2.M2_MsgOneof{MsgOneof: msg}
 m2.OneofField = &pb2.M2_MsgOneof{msg}
 `,
 			Yellow: `
-m2.SetMsgOneof(protooneofdefault.ValueOrDefault(msg))
-m2.SetMsgOneof(protooneofdefault.ValueOrDefault(msg))
+m2.SetMsgOneof(proto.ValueOrDefault(msg))
+m2.SetMsgOneof(proto.ValueOrDefault(msg))
 `,
 		},
 	}, {
@@ -1366,7 +1366,7 @@ _ = m2h2
 			Red: `
 var msgOneof *pb2.M2_MsgOneof
 m2h2 := &pb2.M2{}
-m2h2.SetMsgOneof(protooneofdefault.ValueOrDefault(msgOneof.MsgOneof))
+m2h2.SetMsgOneof(proto.ValueOrDefault(msgOneof.MsgOneof))
 _ = m2h2
 `,
 		},
@@ -1390,7 +1390,7 @@ _ = &pb2.M2{OneofField: msgOneof}
 `,
 				Red: `
 var msgOneof *pb2.M2_MsgOneof
-_ = pb2.M2_builder{MsgOneof: protooneofdefault.ValueOrDefault(msgOneof.MsgOneof)}.Build()
+_ = pb2.M2_builder{MsgOneof: proto.ValueOrDefault(msgOneof.MsgOneof)}.Build()
 `,
 			},
 		},
@@ -1412,7 +1412,7 @@ _ = m2h2
 				Yellow: `
 var msg *pb2.M2
 m2h2 := &pb2.M2{}
-m2h2.SetMsgOneof(protooneofdefault.ValueOrDefault(msg))
+m2h2.SetMsgOneof(proto.ValueOrDefault(msg))
 _ = m2h2
 `,
 			},
@@ -1432,7 +1432,7 @@ _ = &pb2.M2{OneofField: &pb2.M2_MsgOneof{msg}}
 `,
 				Yellow: `
 var msg *pb2.M2
-_ = pb2.M2_builder{MsgOneof: protooneofdefault.ValueOrDefault(msg)}.Build()
+_ = pb2.M2_builder{MsgOneof: proto.ValueOrDefault(msg)}.Build()
 `,
 			},
 		},

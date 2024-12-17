@@ -533,9 +533,9 @@ var scalarOneof *pb2.M2_StringOneof
 _ = pb2.M2_builder{StringOneof: proto.String(scalarOneof.StringOneof)}.Build()
 
 var msgOneof *pb2.M2_MsgOneof
-_ = pb2.M2_builder{MsgOneof: protooneofdefault.ValueOrDefault(msgOneof.MsgOneof)}.Build()
+_ = pb2.M2_builder{MsgOneof: proto.ValueOrDefault(msgOneof.MsgOneof)}.Build()
 
-_ = pb2.M2_builder{MsgOneof: protooneofdefault.ValueOrDefault(F().MsgOneof)}.Build()
+_ = pb2.M2_builder{MsgOneof: proto.ValueOrDefault(F().MsgOneof)}.Build()
 
 ifaceOneof := m2.GetOneofField()
 _ = pb2.M2_builder{OneofField: ifaceOneof}.Build()
@@ -563,7 +563,7 @@ _ = &pb2.M2{OneofField: &pb2.M2_MsgOneof{msg}}
 `,
 			Red: `
 msg := &pb2.M2{}
-_ = pb2.M2_builder{MsgOneof: protooneofdefault.ValueOrDefault(msg)}.Build()
+_ = pb2.M2_builder{MsgOneof: proto.ValueOrDefault(msg)}.Build()
 `,
 		},
 	}, {
@@ -642,7 +642,7 @@ _ = &pb2.M2{
 }
 _ = pb2.M2_builder{
 	StringOneof: proto.String("hello"),
-	MsgOneof2:   protooneofdefault.ValueOrDefault(msg),
+	MsgOneof2:   proto.ValueOrDefault(msg),
 }.Build()
 _ = &pb2.M2{
 	OneofField:  &pb2.M2_StringOneof{"hello"},

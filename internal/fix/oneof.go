@@ -468,13 +468,11 @@ func isKV(x dst.Expr) bool {
 	return ok
 }
 
-const protooneofdefaultImport = "google.golang.org/protobuf/protooneofdefault"
-
 func valueOrDefault(c *cursor, fun string, val dst.Expr) dst.Expr {
 	fnsel := &dst.Ident{Name: fun}
 	fn := &dst.CallExpr{
 		Fun: &dst.SelectorExpr{
-			X:   &dst.Ident{Name: c.imports.name(protooneofdefaultImport)},
+			X:   &dst.Ident{Name: c.imports.name(protoImport)},
 			Sel: fnsel,
 		},
 		Args: []dst.Expr{
