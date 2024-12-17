@@ -473,14 +473,14 @@ func rewrite(ctx context.Context, cfg *config) (err error) {
 			}
 			fixPackageBatch(ctx, pkgCfg, cfg.targets[idx:end], resc)
 		}
+		close(resc)
 	}()
 
 	fmt.Printf("Loading packages (in batches of up to %d)...\n", cfg.parallelJobs)
 
 	writtenByPath := make(map[string]bool)
 	var total, fail int
-	for range cfg.targets {
-		res := <-resc
+	for res := range resc {
 		profile.Add(res.ctx, "main/gotresp")
 
 		total++
@@ -497,7 +497,7 @@ func rewrite(ctx context.Context, cfg *config) (err error) {
 		tleft := time.Duration(len(cfg.targets)-total) * tavg
 		profile.Add(res.ctx, "done")
 
-		fmt.Printf(`PROCESSED %d/%d packages
+		fmt.Printf(`PROCESSED %d packages (total patterns: %d)
 	Last package:         %s
 	Total time:           %s
 	Package profile:      %s
@@ -584,15 +584,16 @@ type packageConfig struct {
 
 func fixPackageBatch(ctx context.Context, cfg packageConfig, targets []*loader.Target, resc chan fixResult) {
 	results := make(chan loader.LoadResult, len(targets))
+	go func() {
+		cfg.loader.LoadPackages(ctx, targets, results)
+		close(results)
+	}()
+
 	var wg sync.WaitGroup
-	wg.Add(len(targets))
-	for range targets {
+	for res := range results {
+		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			res, ok := <-results
-			if !ok {
-				return // channel closed
-			}
 			ctx := profile.NewContext(ctx)
 			if err := res.Err; err != nil {
 				resc <- fixResult{
@@ -604,6 +605,7 @@ func fixPackageBatch(ctx context.Context, cfg packageConfig, targets []*loader.T
 			}
 			profile.Add(ctx, "main/scheduled")
 
+			cfg := cfg // copy so that we can safely modify
 			cfg.configuredPkg.Testonly = res.Target.Testonly
 			cfg.configuredPkg.Loader = cfg.loader
 			cfg.configuredPkg.Pkg = res.Package
@@ -619,8 +621,6 @@ func fixPackageBatch(ctx context.Context, cfg packageConfig, targets []*loader.T
 			}
 		}()
 	}
-	cfg.loader.LoadPackages(ctx, targets, results)
-	close(results)
 	wg.Wait()
 }
 

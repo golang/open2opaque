@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
 	"golang.org/x/tools/go/packages"
 )
@@ -51,6 +52,7 @@ func (l *BlazeLoader) LoadPackages(ctx context.Context, targets []*Target, res c
 			packages.NeedSyntax |
 			packages.NeedTypes |
 			packages.NeedTypesInfo,
+		Tests: true,
 	}
 	pkgs, err := packages.Load(cfg, patterns...)
 	if err != nil {
@@ -58,14 +60,15 @@ func (l *BlazeLoader) LoadPackages(ctx context.Context, targets []*Target, res c
 		return
 	}
 
-	if got, want := len(pkgs), len(patterns); got != want {
-		failBatch(targets, res, fmt.Errorf("BUG: Load(%s) resulted in %d packages, want %d packages", patterns, got, want))
-		return
-	}
-
 	// Validate the response: ensure we can associate each returned package with
 	// a requested target, or fail the entire batch.
 	for _, pkg := range pkgs {
+		if strings.Contains(pkg.ID, ".test") {
+			// go/packages returns test packages for the provided patterns,
+			// e.g. "google.golang.org/o2o [google.golang.org/o2o.test]"
+			// for pattern google.golang.org/o2o.
+			continue
+		}
 		if _, ok := targetByID[pkg.ID]; !ok {
 			failBatch(targets, res, fmt.Errorf("BUG: Load() returned package %s, which was not requested", pkg.ID))
 			return
@@ -75,6 +78,9 @@ func (l *BlazeLoader) LoadPackages(ctx context.Context, targets []*Target, res c
 LoadedPackage:
 	for _, pkg := range pkgs {
 		t := targetByID[pkg.ID]
+		if t == nil {
+			t = &Target{ID: pkg.ID}
+		}
 		result := &Package{
 			Fileset:  pkg.Fset,
 			TypeInfo: pkg.TypesInfo,
@@ -90,11 +96,14 @@ LoadedPackage:
 				continue LoadedPackage
 			}
 			relPath := absPath
+			libraryUnderTest := false
+			generated := strings.HasSuffix(relPath, ".pb.go")
 			f := &File{
 				AST:              pkg.Syntax[idx],
 				Path:             relPath,
-				LibraryUnderTest: t.LibrarySrcs[relPath],
+				LibraryUnderTest: libraryUnderTest,
 				Code:             string(b),
+				Generated:        generated,
 			}
 			result.Files = append(result.Files, f)
 		}
