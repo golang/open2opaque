@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"syscall"
 )
 
 func udiff(x, y []byte) ([]byte, error) {
@@ -34,8 +33,7 @@ func udiff(x, y []byte) ([]byte, error) {
 	cmd.Stderr = &stderr
 	stdout, err := cmd.Output()
 	if ee, ok := err.(*exec.ExitError); ok {
-		if ws, ok := ee.Sys().(syscall.WaitStatus); ok && ws.ExitStatus() == 1 {
-			// exit status 1 means there's a diff, but no other failure
+		if exitErrorMeansDiff(ee) {
 			err = nil
 		}
 	}
