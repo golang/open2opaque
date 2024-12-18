@@ -598,6 +598,29 @@ func cleanup(path string, content []byte) ([]byte, error) {
 	// Cleanup 1: If all messages are on the same API level, flip the file API
 	// level to that value. If said level is the default for the path, don't use
 	// an explicit flag.
+	var err error
+	content, err = cleanupAllMsgsToFile(path, content)
+	if err != nil {
+		return nil, err
+	}
+
+	// Cleanup 2: Remove the API flag from all messages that have the same API
+	// level as their parents. The parent is usually the file API level, but in
+	// case of editions proto that use the new edition feature, the parent of
+	// a nested message is its parent message.
+	//
+	// Parse again after the previous cleanup might have modified content.
+	content, err = cleanupSameAsParent(path, content)
+	if err != nil {
+		return nil, err
+	}
+
+	// Cleanup 3: ensure the go_features.proto import is present if and only if
+	// any parts of the file set the features.(pb.go).api_level option.
+	return cleanupGoFeaturesImport(path, content)
+}
+
+func cleanupAllMsgsToFile(path string, content []byte) ([]byte, error) {
 	fopt, err := parse(path, content, false)
 	if err != nil {
 		return nil, err
@@ -609,25 +632,29 @@ func cleanup(path string, content []byte) ([]byte, error) {
 			return nil
 		})
 	}
-	if len(apiMap) == 1 {
-		// All messages have same API level.
-		// Consider cleanup as a nice to have, don't error out on leading-comment
-		// exemptions.
-		const errorOnExempt = false
-		const skipCleanup = false
-		content, err = setFileAPI(path, content, fopt.MessageOpts[0].GoAPI, skipCleanup, errorOnExempt)
-		if err != nil {
-			return nil, fmt.Errorf("setFileAPI: %v", err)
-		}
+	if len(apiMap) != 1 {
+		// Not all messages are on the same API level.
+		return content, nil
 	}
+	targetAPI := fopt.MessageOpts[0].GoAPI
+	if fopt.GoAPI == targetAPI {
+		// File is already on the target API level, nothing to do.
+		return content, nil
+	}
+	// All messages have same API level.
+	// Consider cleanup as a nice to have, don't error out on leading-comment
+	// exemptions.
+	const errorOnExempt = false
+	const skipCleanup = false
+	content, err = setFileAPI(path, content, targetAPI, skipCleanup, errorOnExempt)
+	if err != nil {
+		return nil, fmt.Errorf("setFileAPI: %v", err)
+	}
+	return content, nil
+}
 
-	// Cleanup 2: Remove the API flag from all messages that have the same API
-	// level as their parents. The parent is usually the file API level, but in
-	// case of editions proto that use the new edition feature, the parent of
-	// a nested message is its parent message.
-	//
-	// Parse again after the previous cleanup might have modified content.
-	fopt, err = parse(path, content, false)
+func cleanupSameAsParent(path string, content []byte) ([]byte, error) {
+	fopt, err := parse(path, content, false)
 	if err != nil {
 		return nil, err
 	}
@@ -666,24 +693,23 @@ func cleanup(path string, content []byte) ([]byte, error) {
 			return nil, err
 		}
 	}
-	if len(removeByteRanges) > 0 {
-		slices.SortFunc(removeByteRanges, func(a, b byteRange) int {
-			return cmp.Compare(a.from, b.from)
-		})
-		for i := 1; i < len(removeByteRanges); i++ {
-			if removeByteRanges[i].from < removeByteRanges[i-1].to {
-				return nil, fmt.Errorf("text ranges overlap")
-			}
-		}
+	if len(removeByteRanges) == 0 {
+		return content, nil
+	}
 
-		for _, br := range slices.Backward(removeByteRanges) {
-			content = slices.Delete(content, br.from, br.to)
+	slices.SortFunc(removeByteRanges, func(a, b byteRange) int {
+		return cmp.Compare(a.from, b.from)
+	})
+	for i := 1; i < len(removeByteRanges); i++ {
+		if removeByteRanges[i].from < removeByteRanges[i-1].to {
+			return nil, fmt.Errorf("text ranges overlap")
 		}
 	}
 
-	// Cleanup 3: ensure the go_features.proto import is present if and only if
-	// any parts of the file set the features.(pb.go).api_level option.
-	return cleanupGoFeaturesImport(path, content)
+	for _, br := range slices.Backward(removeByteRanges) {
+		content = slices.Delete(content, br.from, br.to)
+	}
+	return content, nil
 }
 
 func insertLine(content []byte, insertLine string, ln int32) []byte {
