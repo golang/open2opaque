@@ -132,6 +132,7 @@ message M{}
 				cmpopts.IgnoreFields(protoparse.FileOpt{}, "APIInfo"),
 				cmpopts.IgnoreFields(protoparse.FileOpt{}, "SourceCodeInfo"),
 				cmpopts.IgnoreFields(protoparse.FileOpt{}, "MessageOpts"),
+				cmpopts.IgnoreFields(protoparse.FileOpt{}, "Desc"),
 			}
 			if diff := cmp.Diff(tc.wantOpt, got, ingores...); diff != "" {
 				t.Errorf("parser.ParseFile(): diff (-want +got):\n%v\n", diff)

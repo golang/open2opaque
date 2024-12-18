@@ -129,6 +129,8 @@ type FileOpt struct {
 	// Options of messages defined at the file level. Nested messages are stored
 	// as their children.
 	MessageOpts []*MessageOpt
+	// Desc is the descriptor proto of the parsed file.
+	Desc *descpb.FileDescriptorProto
 	// SourceCodeInfo is set if parsed results includes it.
 	SourceCodeInfo *descpb.SourceCodeInfo
 	// Proto syntax: "proto2", "proto3", "editions", or "editions_go_api_flag".
@@ -308,6 +310,7 @@ func (p *Parser) ParseFile(name string, skipMessages bool) (*FileOpt, error) {
 		IsExplicit:     explicit,
 		APIInfo:        info,
 		MessageOpts:    mopts,
+		Desc:           desc,
 		SourceCodeInfo: desc.GetSourceCodeInfo(),
 		Syntax:         syntax,
 	}, nil

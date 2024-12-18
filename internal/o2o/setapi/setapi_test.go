@@ -508,6 +508,8 @@ message M{}
 			protoIn: `
 edition = "2023";
 package pkg;
+import "some/unrelated/import.proto";
+import "google/protobuf/go_features.proto";
 option features.(pb.go).api_level = API_HYBRID;
 message M{}
 `,
@@ -515,6 +517,7 @@ message M{}
 			protoWant: `
 edition = "2023";
 package pkg;
+import "some/unrelated/import.proto";
 
 message M{}
 `,
@@ -531,6 +534,7 @@ message M{}
 			protoWant: `
 edition = "2023";
 package pkg;
+import "google/protobuf/go_features.proto";
 option features.(pb.go).api_level = API_HYBRID;
 message M{}
 `,
@@ -545,6 +549,7 @@ message M{}
 			targetAPI: gofeaturespb.GoFeatures_API_HYBRID,
 			protoWant: `
 edition = "2023";
+import "google/protobuf/go_features.proto";
 option features.(pb.go).api_level = API_HYBRID;
 message M{}
 `,
@@ -562,6 +567,7 @@ message M{}
 			protoWant: `
 edition = "2023";
 package pkg;
+import "google/protobuf/go_features.proto";
 option java_package = "foo";
 option features.(pb.go).api_level = API_HYBRID;
 message M{}
@@ -581,6 +587,7 @@ message M{}
 edition = "2023";
 package pkg;
 import "foo.proto";
+import "google/protobuf/go_features.proto";
 option features.(pb.go).api_level = API_HYBRID;
 message M{}
 `,
@@ -597,6 +604,7 @@ message M{}
 			protoWant: `
 edition = "2023";
 package pkg;
+import "google/protobuf/go_features.proto";
 option features.(pb.go).api_level = API_HYBRID;
 message M{}
 `,
@@ -611,6 +619,7 @@ message M{}
 			targetAPI: gofeaturespb.GoFeatures_API_HYBRID,
 			protoWant: `
 edition = "2023";
+import "google/protobuf/go_features.proto";
 option features.(pb.go).api_level = API_HYBRID;
 message M{}
 `,
@@ -628,6 +637,7 @@ message M{}
 			protoWant: `
 edition = "2023";
 package pkg;
+import "google/protobuf/go_features.proto";
 option features.(pb.go).api_level = API_HYBRID;
 message M{}
 `,
@@ -645,6 +655,7 @@ message M{}
 			protoWant: `
 edition = "2023";
 package pkg;
+import "google/protobuf/go_features.proto";
 option features.(pb.go).api_level = API_HYBRID;
 message M{}
 `,
@@ -662,6 +673,7 @@ message M{}
 			protoWant: `
 edition = "2023";
 package pkg;
+import "google/protobuf/go_features.proto";
 option features.(pb.go).api_level = API_OPEN;
 message M{}
 `,
@@ -694,6 +706,7 @@ message M{}
 			protoWant: `
 edition = "2023";
 package pkg;
+import "google/protobuf/go_features.proto";
 // leading comment
 option features.(pb.go).api_level = API_HYBRID;
 message M{}
@@ -727,6 +740,7 @@ message M{}
 			protoWant: `
 edition = "2023";
 package pkg;
+import "google/protobuf/go_features.proto";
 // leading comment
 option features.(pb.go).api_level = API_OPAQUE;
 message M{}
@@ -881,6 +895,7 @@ message A{
 			protoWant: `
 edition = "2023";
 package pkg;
+import "google/protobuf/go_features.proto";
 message A{
   message A1{
     
@@ -915,6 +930,7 @@ message A{
 			protoWant: `
 edition = "2023";
 package pkg;
+import "google/protobuf/go_features.proto";
 message A{
   message A1{
     option features.(pb.go).api_level = API_HYBRID; // end-of-line comment
@@ -949,6 +965,7 @@ message A{
 			protoWant: `
 edition = "2023";
 package pkg;
+import "google/protobuf/go_features.proto";
 message A{
   message A1{
     option features.(pb.go).api_level = API_OPEN; // end-of-line comment
@@ -987,6 +1004,7 @@ message B{
 			protoWant: `
 edition = "2023";
 package pkg;
+import "google/protobuf/go_features.proto";
 message A{
   message A1{
     
@@ -1030,6 +1048,7 @@ message B{
 			protoWant: `
 edition = "2023";
 package pkg;
+import "google/protobuf/go_features.proto";
 message A{
   message A1{
     option features.(pb.go).api_level = API_OPEN;
@@ -1151,6 +1170,7 @@ message M{}
 			protoIn: `
 edition = "2023";
 package pkg;
+import "google/protobuf/go_features.proto";
 message A{
 option features.(pb.go).api_level = API_OPAQUE; // end-of-line comment
 message A1{
@@ -1168,6 +1188,7 @@ option features.(pb.go).api_level = API_OPAQUE;
 			protoWant: `
 edition = "2023";
 package pkg;
+import "google/protobuf/go_features.proto";
 message A{
 
 message A1{
@@ -1206,6 +1227,7 @@ option features.(pb.go).api_level = API_OPAQUE;
 			protoWant: `
 edition = "2023";
 package pkg;
+import "google/protobuf/go_features.proto";
 message A{
 
 message A1{

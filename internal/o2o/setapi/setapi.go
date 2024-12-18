@@ -433,15 +433,11 @@ func setFileAPI(path string, content []byte, targetAPI gofeaturespb.GoFeatures_A
 		if err != nil {
 			return nil, fmt.Errorf("fileOptionLineNumber: %v", err)
 		}
-		lines := bytes.Split(content, []byte{'\n'})
-		insertLine := fmt.Sprintf("option go_api_flag = %q;", fromFeatureToOld(targetAPI))
+		levelLine := fmt.Sprintf("option go_api_flag = %q;", fromFeatureToOld(targetAPI))
 		if fopt.Syntax == "editions" {
-			insertLine = fmt.Sprintf("option features.(pb.go).api_level = %s;", targetAPI)
+			levelLine = fmt.Sprintf("option features.(pb.go).api_level = %s;", targetAPI)
 		}
-		result := slices.Clone(lines[:ln])
-		result = append(result, []byte(insertLine))
-		result = append(result, lines[ln:]...)
-		return bytes.Join(result, []byte{'\n'}), nil
+		return insertLine(content, levelLine, ln), nil
 	}
 
 	// File is currently explicitly set to API value and target API isn't the
@@ -630,7 +626,7 @@ func cleanup(path string, content []byte) ([]byte, error) {
 	// case of editions proto that use the new edition feature, the parent of
 	// a nested message is its parent message.
 	//
-	// Parse again after the previous cleanup might have modified conten.
+	// Parse again after the previous cleanup might have modified content.
 	fopt, err = parse(path, content, false)
 	if err != nil {
 		return nil, err
@@ -670,22 +666,117 @@ func cleanup(path string, content []byte) ([]byte, error) {
 			return nil, err
 		}
 	}
-	if len(removeByteRanges) == 0 {
-		return content, nil
-	}
+	if len(removeByteRanges) > 0 {
+		slices.SortFunc(removeByteRanges, func(a, b byteRange) int {
+			return cmp.Compare(a.from, b.from)
+		})
+		for i := 1; i < len(removeByteRanges); i++ {
+			if removeByteRanges[i].from < removeByteRanges[i-1].to {
+				return nil, fmt.Errorf("text ranges overlap")
+			}
+		}
 
-	slices.SortFunc(removeByteRanges, func(a, b byteRange) int {
-		return cmp.Compare(a.from, b.from)
-	})
-	for i := 1; i < len(removeByteRanges); i++ {
-		if removeByteRanges[i].from < removeByteRanges[i-1].to {
-			return nil, fmt.Errorf("text ranges overlap")
+		for _, br := range slices.Backward(removeByteRanges) {
+			content = slices.Delete(content, br.from, br.to)
 		}
 	}
 
-	for _, br := range slices.Backward(removeByteRanges) {
-		content = slices.Delete(content, br.from, br.to)
+	// Cleanup 3: ensure the go_features.proto import is present if and only if
+	// any parts of the file set the features.(pb.go).api_level option.
+	return cleanupGoFeaturesImport(path, content)
+}
+
+func insertLine(content []byte, insertLine string, ln int32) []byte {
+	lines := bytes.Split(content, []byte{'\n'})
+	result := slices.Clone(lines[:ln])
+	result = append(result, []byte(insertLine))
+	result = append(result, lines[ln:]...)
+	return bytes.Join(result, []byte{'\n'})
+}
+
+func messageUsesFeature(mopt *protoparse.MessageOpt) bool {
+	if mopt.IsExplicit {
+		return true // editions feature set at message level
 	}
+	for _, mo := range mopt.Children {
+		if messageUsesFeature(mo) {
+			return true
+		}
+	}
+	return false
+}
+
+func usesFeature(fopt *protoparse.FileOpt) bool {
+	if fopt.Syntax != "editions" {
+		return false // only files on editions can use editions features
+	}
+	if fopt.IsExplicit {
+		return true // editions feature set at file level
+	}
+	for _, mo := range fopt.MessageOpts {
+		if messageUsesFeature(mo) {
+			return true
+		}
+	}
+	return false
+}
+
+func cleanupGoFeaturesImport(path string, content []byte) ([]byte, error) {
+	const featuresProto = "google/protobuf/go_features.proto"
+	parser := protoparse.NewParserWithAccessor(func(string) (io.ReadCloser, error) {
+		return io.NopCloser(bytes.NewReader(content)), nil
+	})
+	fopt, err := parser.ParseFile(path, false)
+	if err != nil {
+		return nil, fmt.Errorf("error reading file %s: %w", path, err)
+	}
+	desc := fopt.Desc
+	goFeaturesImported := slices.ContainsFunc(
+		desc.GetDependency(),
+		func(path string) bool {
+			return path == featuresProto
+		})
+	usesFeature := usesFeature(fopt)
+
+	if usesFeature && !goFeaturesImported {
+		ln, err := featuresImportLineNumber(desc.GetSourceCodeInfo())
+		if err != nil {
+			return nil, err
+		}
+		importLine := fmt.Sprintf("import %q;", featuresProto)
+		return insertLine(content, importLine, ln), nil
+	}
+
+	if !usesFeature && goFeaturesImported {
+		importNum := 0
+		for _, loc := range desc.GetSourceCodeInfo().GetLocation() {
+			path := loc.GetPath()
+			span := loc.GetSpan()
+			if len(path) < 1 {
+				continue
+			}
+			if path[0] != importFieldNum {
+				continue
+			}
+			// Found an import. Is it the go_features.proto import?
+			if max := len(desc.GetDependency()); importNum >= max {
+				return nil, fmt.Errorf("BUG: too many imports in SourceCodeInfo: got index %d, want at most %d", importNum, max)
+			}
+			imported := desc.GetDependency()[importNum]
+			importNum++
+			if imported != featuresProto {
+				continue
+			}
+			ln := spanEndLine(span)
+			lines := bytes.Split(content, []byte{'\n'})
+			result := slices.Clone(lines[:ln])
+			// lines[ln] deleted by omitting it.
+			result = append(result, lines[ln+1:]...)
+			return bytes.Join(result, []byte{'\n'}), nil
+		}
+		return nil, fmt.Errorf("BUG: could not locate import line in SourceCodeInfo")
+	}
+
 	return content, nil
 }
 
@@ -697,26 +788,17 @@ func spanEndLine(span []int32) int32 {
 	return span[0]
 }
 
-// fileOptionLineNumber returns the line number to insert the file-level
-// go_api_flag option. It uses the following heuristics to determine the
-// line number:
-// If there are any file option settings, return the line number after the last
-// one.
-// If there are any import lines, return the line number after the last one.
-// If there is a package statement line, return the line number after it.
-// If there is a syntax statement line, return the line number after it.
-// Note that this func assumes that an earlier protoparser.Parser.ParseFile
-// invocation will return error already if there is no syntax statement.
-func fileOptionLineNumber(info *descpb.SourceCodeInfo) (int32, error) {
-	const (
-		// https://github.com/protocolbuffers/protobuf/blob/v29.1/src/google/protobuf/descriptor.proto#L105-L137
-		syntaxFieldNum      = 12
-		editionFieldNum     = 14
-		editionDeprFieldNum = 13
-		packageFieldNum     = 2
-		importFieldNum      = 3
-		optionFieldNum      = 8
-	)
+const (
+	// https://github.com/protocolbuffers/protobuf/blob/v29.1/src/google/protobuf/descriptor.proto#L105-L137
+	syntaxFieldNum      = 12
+	editionFieldNum     = 14
+	editionDeprFieldNum = 13
+	packageFieldNum     = 2
+	importFieldNum      = 3
+	optionFieldNum      = 8
+)
+
+func fieldNumToLine(info *descpb.SourceCodeInfo) map[int32]int32 {
 	// pos contains a mapping of proto field numbers to line numbers. For syntax
 	// and package constructs, the line numbers represent where they are declared.
 	// For import and options, the line number represents the last import/option
@@ -737,6 +819,51 @@ func fileOptionLineNumber(info *descpb.SourceCodeInfo) (int32, error) {
 			}
 		}
 	}
+	return pos
+}
+
+// featuresImportLineNumber returns the line number to insert the file-level
+// go_features.proto import. It uses the following heuristics to determine the
+// line number:
+// If there are any import lines, return the line number after the last one.
+// If there is a package statement line, return the line number after it.
+// If there is a syntax statement line, return the line number after it.
+// Note that this func assumes that an earlier protoparser.Parser.ParseFile
+// invocation will return error already if there is no syntax statement.
+func featuresImportLineNumber(info *descpb.SourceCodeInfo) (int32, error) {
+	pos := fieldNumToLine(info)
+
+	if lnum, ok := pos[importFieldNum]; ok {
+		return lnum + 1, nil
+	}
+	if lnum, ok := pos[packageFieldNum]; ok {
+		return lnum + 1, nil
+	}
+	if lnum, ok := pos[syntaxFieldNum]; ok {
+		return lnum + 1, nil
+	}
+	if lnum, ok := pos[editionFieldNum]; ok {
+		return lnum + 1, nil
+	}
+	if lnum, ok := pos[editionDeprFieldNum]; ok {
+		return lnum + 1, nil
+	}
+
+	return 0, fmt.Errorf("cannot determine line number for go_features.proto import")
+}
+
+// fileOptionLineNumber returns the line number to insert the file-level
+// go_api_flag option. It uses the following heuristics to determine the
+// line number:
+// If there are any file option settings, return the line number after the last
+// one.
+// If there are any import lines, return the line number after the last one.
+// If there is a package statement line, return the line number after it.
+// If there is a syntax statement line, return the line number after it.
+// Note that this func assumes that an earlier protoparser.Parser.ParseFile
+// invocation will return error already if there is no syntax statement.
+func fileOptionLineNumber(info *descpb.SourceCodeInfo) (int32, error) {
+	pos := fieldNumToLine(info)
 
 	if lnum, ok := pos[optionFieldNum]; ok {
 		return lnum + 1, nil
