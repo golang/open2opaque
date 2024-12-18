@@ -393,6 +393,13 @@ func replaceTextRange(in []byte, tr protoparse.TextRange, insert []byte) ([]byte
 	return slices.Insert(in, beginByte, insert...), nil
 }
 
+func levelLineFor(fopt *protoparse.FileOpt, targetAPI gofeaturespb.GoFeatures_APILevel) (string, error) {
+	if fopt.Syntax == "editions" {
+		return fmt.Sprintf("option features.(pb.go).api_level = %s;", targetAPI), nil
+	}
+	return "", fmt.Errorf("file %s is not using Protobuf Editions (https://protobuf.dev/editions/overview/) yet", fopt.File)
+}
+
 func setFileAPI(path string, content []byte, targetAPI gofeaturespb.GoFeatures_APILevel, skipCleanup, errorOnExempt bool) ([]byte, error) {
 	fopt, err := parse(path, content, true)
 	if err != nil {
@@ -426,16 +433,17 @@ func setFileAPI(path string, content []byte, targetAPI gofeaturespb.GoFeatures_A
 		return slices.Delete(content, from, to), nil
 	}
 
+	levelLine, err := levelLineFor(fopt, targetAPI)
+	if err != nil {
+		return nil, err
+	}
+
 	if !fopt.IsExplicit {
 		logf("Inserting API flag %q into file %s", targetAPI, path)
 
 		ln, err := fileOptionLineNumber(fopt.SourceCodeInfo)
 		if err != nil {
 			return nil, fmt.Errorf("fileOptionLineNumber: %v", err)
-		}
-		levelLine := fmt.Sprintf("option go_api_flag = %q;", fromFeatureToOld(targetAPI))
-		if fopt.Syntax == "editions" {
-			levelLine = fmt.Sprintf("option features.(pb.go).api_level = %s;", targetAPI)
 		}
 		return insertLine(content, levelLine, ln), nil
 	}
@@ -454,11 +462,7 @@ func setFileAPI(path string, content []byte, targetAPI gofeaturespb.GoFeatures_A
 		return content, nil
 	}
 	logf("Replacing the API flag of file %s", path)
-	insert := fmt.Sprintf("option go_api_flag = %q;", fromFeatureToOld(targetAPI))
-	if fopt.Syntax == "editions" {
-		insert = fmt.Sprintf("option features.(pb.go).api_level = %s;", targetAPI)
-	}
-	content, err = replaceTextRange(content, fopt.APIInfo.TextRange, []byte(insert))
+	content, err = replaceTextRange(content, fopt.APIInfo.TextRange, []byte(levelLine))
 	if err != nil {
 		return nil, fmt.Errorf("replaceTextRange: %v", err)
 	}
