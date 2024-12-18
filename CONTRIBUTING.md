@@ -1,6 +1,12 @@
 # How to contribute
 
-We'd love to accept your patches and contributions to this project.
+This repository is an export of a Google-internal repository.
+
+We are currently not well set up to accept contributions, but are looking into it.
+
+If you want to suggest a code change, you can send it via [GitHub pull
+requests](https://help.github.com/articles/about-pull-requests/). We can then
+apply it internally and release it (but not merge your pull request directly).
 
 ## Before you begin
 
@@ -23,11 +29,3 @@ sign a new one.
 This project follows
 [Google's Open Source Community Guidelines](https://opensource.google/conduct/).
 
-## Contribution process
-
-### Code reviews
-
-All submissions, including submissions by project members, require review. We
-use GitHub pull requests for this purpose. Consult
-[GitHub Help](https://help.github.com/articles/about-pull-requests/) for more
-information on using pull requests.
