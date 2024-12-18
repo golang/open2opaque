@@ -37,8 +37,15 @@ func main() {
 	// Prepend general documentation before the regular help output.
 	defaultExplain := commander.Explain
 	commander.Explain = func(w io.Writer) {
-		fmt.Fprintf(w, "The open2opaque tool migrates Go packages from the open protobuf API to the opaque protobuf API.\n\n")
-		fmt.Fprintf(w, "See http://godoc/3/third_party/golang/google_golang_org/open2opaque/v/v0/open2opaque for documentation.\n\n")
+		fmt.Fprintf(w, `The open2opaque tool migrates Go packages from the Go Protobuf Open Struct API to the Opaque API.
+
+For documentation, see:
+* https://go.dev/blog/protobuf-opaque
+* https://protobuf.dev/reference/go/opaque-migration/
+
+Report issues at https://github.com/golang/open2opaque/issues
+
+`)
 		defaultExplain(w)
 	}
 
@@ -51,7 +58,7 @@ func main() {
 	const groupRewrite = "automatically rewriting Go code"
 	commander.Register(rewrite.Command(), groupRewrite)
 
-	const groupFlag = "managing go_api_flag"
+	const groupFlag = "managing the API level"
 	commander.Register(setapi.Command(), groupFlag)
 
 	flag.Usage = func() {
