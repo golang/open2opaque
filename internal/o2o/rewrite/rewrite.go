@@ -66,8 +66,10 @@ func (*Cmd) Synopsis() string { return "Rewrite Go source code to use the Opaque
 // Usage implements subcommand.Command.
 func (*Cmd) Usage() string {
 	return `Usage: open2opaque rewrite -levels=yellow <target> [<target>...]
+For documentation, see:
 
-See http://godoc/3/net/proto2/go/open2opaque/open2opaque for documentation.
+	https://go.dev/blog/protobuf-opaque
+	https://protobuf.dev/reference/go/opaque-migration/
 
 Command-line flag documentation follows:
 `
@@ -192,7 +194,7 @@ func (cmd *Cmd) RewriteTargets(ctx context.Context, targets []string) error {
 		return err
 	}
 	if targetsKind == "unknown" {
-		return fmt.Errorf("could not detect target kind of %q - neither a blaze target, nor a .go file, nor a go package import path (see http://godoc/3/net/proto2/go/open2opaque/open2opaque for instructions)", targets[0])
+		return fmt.Errorf("could not detect target kind of %q - neither a blaze target, nor a .go file, nor a go package import path (see https://go.dev/blog/protobuf-opaque or https://protobuf.dev/reference/go/opaque-migration/ for instructions)", targets[0])
 	}
 
 	inputTypeUses := targetsKind == kindTypeUsages
