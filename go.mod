@@ -12,7 +12,7 @@ require (
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0
 	golang.org/x/sync v0.8.0
 	golang.org/x/tools v0.25.0
-	google.golang.org/protobuf v1.35.3-0.20241211112313-560503ec5d74
+	google.golang.org/protobuf v1.36.1
 )
 
 require (
