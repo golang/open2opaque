@@ -1,0 +1,15 @@
+on: [push, pull_request]
+name: Test
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Install Go
+      uses: actions/setup-go@v5
+      with:
+        # Latest stable version of Go, e.g. 1.23.4
+        go-version: 'stable'
+    - name: Test
+      run: go test -v ./...
