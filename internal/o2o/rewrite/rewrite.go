@@ -348,7 +348,7 @@ func (cmd *Cmd) RewriteTargets(ctx context.Context, targets []string) error {
 	}
 
 	if err := rewrite(ctx, cfg); err != nil {
-		log.ExitContext(ctx, err)
+		return err
 	}
 
 	return nil
@@ -534,12 +534,32 @@ func rewrite(ctx context.Context, cfg *config) (err error) {
 			fmt.Fprintf(os.Stderr, "Can't fix builds: %v\n", err)
 		}
 	}
+	fmt.Println()
 	if fail > 0 {
-		return fmt.Errorf("%d packages could not be rewritten", fail)
+		return fmt.Errorf(rewriteFailedFmt, fail)
 	}
 
 	return nil
 }
+
+const rewriteFailedFmt = `%d packages could not be rewritten
+
+Frequent mistakes include:
+
+- Enabling the Opaque API before rewriting your code.
+  Instead, set your .proto files to the Hybrid API
+  before running open2opaque rewrite. For details, see
+  https://protobuf.dev/reference/go/opaque-migration/
+
+- Your code must build for the open2opaque tool to work.
+  Check that a build shows no errors: go build ./...
+
+- Incorrectly migrating .proto files to edition 2023.
+  It is not sufficient to only replace the syntax line.
+  To preserve your current behavior (proto2 or proto3)
+  when migrating to edition 2023, follow this document:
+  https://protobuf.dev/editions/features/#preserving
+`
 
 func runGoimports(dir string, files []string) error {
 	fmt.Printf("\tRunning goimports on %d files\n", len(files))
