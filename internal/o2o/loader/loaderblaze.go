@@ -73,6 +73,10 @@ func (l *BlazeLoader) LoadPackages(ctx context.Context, targets []*Target, res c
 			failBatch(targets, res, fmt.Errorf("BUG: Load() returned package %s, which was not requested", pkg.ID))
 			return
 		}
+		if len(pkg.Errors) > 0 {
+			failBatch(targets, res, fmt.Errorf("Loading package failed:\n%s", pkg.Errors))
+			return
+		}
 	}
 
 LoadedPackage:
