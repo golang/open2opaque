@@ -210,6 +210,14 @@ var (
 		"OPEN":   gofeaturespb.GoFeatures_API_OPEN,
 		"HYBRID": gofeaturespb.GoFeatures_API_HYBRID,
 		"OPAQUE": gofeaturespb.GoFeatures_API_OPAQUE,
+
+		// For convenience, allow enum names like API_HYBRID as synonyms.
+		// These are used in editions feature options lines like:
+		//
+		//   option features.(pb.go).api_level = API_HYBRID;
+		"API_OPEN":   gofeaturespb.GoFeatures_API_OPEN,
+		"API_HYBRID": gofeaturespb.GoFeatures_API_HYBRID,
+		"API_OPAQUE": gofeaturespb.GoFeatures_API_OPAQUE,
 	}
 	// Don't use the keys of apiMap to report valid values to the user, we want
 	// in a specific order.
