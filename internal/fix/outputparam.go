@@ -145,7 +145,7 @@ func isStubbyHandler(c *cursor, ft *ast.FuncType) bool {
 		}
 
 		T := c.typeOf(dstT.(dst.Expr))
-		ptr, ok := T.(*types.Pointer)
+		ptr, ok := types.Unalias(T).(*types.Pointer)
 		if !ok {
 			c.Logf("parameter %T is not a proto message", param.Type)
 			return false

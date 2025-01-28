@@ -304,7 +304,7 @@ func assignOpPre(c *cursor) bool {
 func isNeverNilSliceExpr(c *cursor, e dst.Expr) bool {
 	// Is this a string to byte conversion?
 	if ce, ok := e.(*dst.CallExpr); ok && len(ce.Args) == 1 {
-		if bt, ok := c.typeOf(ce.Args[0]).(*types.Basic); ok && bt.Kind() == types.String {
+		if bt, ok := types.Unalias(c.typeOf(ce.Args[0])).(*types.Basic); ok && bt.Kind() == types.String {
 			if at, ok := ce.Fun.(*dst.ArrayType); ok {
 				if id, ok := at.Elt.(*dst.Ident); ok && id.Name == "byte" {
 					return true
@@ -313,7 +313,7 @@ func isNeverNilSliceExpr(c *cursor, e dst.Expr) bool {
 		}
 	}
 	if _, ok := e.(*dst.CompositeLit); ok {
-		if _, ok := c.typeOf(e).(*types.Slice); ok {
+		if _, ok := types.Unalias(c.typeOf(e)).(*types.Slice); ok {
 			return true
 		}
 	}
@@ -362,7 +362,7 @@ func rewriteFieldAssign(c *cursor, lhs, rhs dst.Expr, decs dst.NodeDecs) (dst.St
 		c.Logf("rewriting Enum() call")
 
 		if t := c.typeOfOrNil(enumVal); t != nil {
-			if pt, ok := t.(*types.Pointer); ok {
+			if pt, ok := types.Unalias(t).(*types.Pointer); ok {
 				enumVal = &dst.StarExpr{X: enumVal}
 				c.setType(enumVal, pt.Elem())
 			}
@@ -446,8 +446,8 @@ func rewriteFieldAssign(c *cursor, lhs, rhs dst.Expr, decs dst.NodeDecs) (dst.St
 		c.Logf("rewriting assignment with rhs Expr")
 		f := c.objectOf(lhsSel.Sel).(*types.Var)
 		isProto2 := !isProto3Field(c.typeOf(lhsSel.X), f.Name())
-		if slice, ok := f.Type().(*types.Slice); ok && isProto2 {
-			if basic, ok := slice.Elem().(*types.Basic); ok && basic.Kind() == types.Uint8 {
+		if slice, ok := types.Unalias(f.Type()).(*types.Slice); ok && isProto2 {
+			if basic, ok := types.Unalias(slice.Elem()).(*types.Basic); ok && basic.Kind() == types.Uint8 {
 				if isNeverNilSliceExpr(c, rhs) {
 					stmt := c.expr2stmt(sel2call(c, "Set", lhsSel, rhs, decs), lhsSel)
 					return stmt, true
@@ -755,11 +755,11 @@ func newConstructorCall(c *cursor, expr dst.Expr) (dst.Expr, bool) {
 	}
 
 	t := c.typeOf(call.Args[0])
-	if t, ok := t.(*types.Basic); ok {
+	if t, ok := types.Unalias(t).(*types.Basic); ok {
 		return scalarTypeZeroExpr(c, t), true
 	}
 
-	if _, ok := t.(*types.Named); !ok {
+	if _, ok := types.Unalias(t).(*types.Named); !ok {
 		return nil, false
 	}
 
@@ -955,7 +955,7 @@ func deref(c *cursor, expr dst.Expr) dst.Expr {
 		return ue.X
 	}
 	out := &dst.StarExpr{X: expr}
-	c.setType(out, c.underlyingTypeOf(expr).(*types.Pointer).Elem())
+	c.setType(out, types.Unalias(c.underlyingTypeOf(expr)).(*types.Pointer).Elem())
 	return out
 }
 

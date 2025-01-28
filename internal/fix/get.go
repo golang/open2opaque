@@ -267,7 +267,7 @@ func getPost(c *cursor) bool {
 
 func funcLiteralForHas(c *cursor, n dst.Expr, field *dst.SelectorExpr) dst.Node {
 	nodeElemType := c.typeOf(n)
-	if ptr, ok := nodeElemType.(*types.Pointer); ok {
+	if ptr, ok := types.Unalias(nodeElemType).(*types.Pointer); ok {
 		nodeElemType = ptr.Elem()
 	}
 	msgType := c.typeOf(field.X)
@@ -285,7 +285,7 @@ func funcLiteralForHas(c *cursor, n dst.Expr, field *dst.SelectorExpr) dst.Node 
 	}
 
 	var retElemType dst.Expr = &dst.Ident{Name: nodeElemType.String()}
-	if named, ok := nodeElemType.(*types.Named); ok {
+	if named, ok := types.Unalias(nodeElemType).(*types.Named); ok {
 		pkgID := &dst.Ident{Name: c.imports.name(named.Obj().Pkg().Path())}
 		c.setType(pkgID, types.Typ[types.Invalid])
 		pkgSel := &dst.Ident{Name: named.Obj().Name()}

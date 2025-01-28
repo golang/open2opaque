@@ -280,7 +280,7 @@ func (c *cursor) shouldLogCompositeType(t types.Type, followPointers bool) (out 
 	if c.shouldTrackType(t) {
 		return t, true
 	}
-	switch t := t.(type) {
+	switch t := types.Unalias(t).(type) {
 	case *types.Tuple:
 		for i := 0; i < t.Len(); i++ {
 			if t, ok := c.shouldLogCompositeType(t.At(i).Type(), followPointers); ok {
@@ -353,7 +353,7 @@ func convToUnsafePointerArg(c *cursor, expr dst.Expr) (dst.Expr, bool) {
 }
 
 func typeName(t types.Type) string {
-	if iface, ok := t.(*types.Interface); ok && iface.Empty() {
+	if iface, ok := types.Unalias(t).(*types.Interface); ok && iface.Empty() {
 		return "interface{}"
 	}
 	return t.String()
@@ -636,7 +636,7 @@ func callStats(c *cursor, call *dst.CallExpr, parent dst.Node) []*spb.Entry {
 	//   "f(*m)"
 	//   "f(g())" where g() returns at least one protocol buffer message
 
-	ft, ok := c.typeOf(call.Fun).(*types.Signature)
+	ft, ok := types.Unalias(c.typeOf(call.Fun)).(*types.Signature)
 	if !ok {
 		return out
 	}
@@ -646,7 +646,7 @@ func callStats(c *cursor, call *dst.CallExpr, parent dst.Node) []*spb.Entry {
 	if arg0t == nil {
 		return logSiloed(c, out, call.Args[0], parent)
 	}
-	if tuple, ok := arg0t.(*types.Tuple); ok {
+	if tuple, ok := types.Unalias(arg0t).(*types.Tuple); ok {
 		// Handle "f(g())"-style calls where g() returns a tuple of results.
 		for i := 0; i < tuple.Len(); i++ {
 			argTypes = append(argTypes, tuple.At(i).Type())
@@ -668,7 +668,7 @@ func callStats(c *cursor, call *dst.CallExpr, parent dst.Node) []*spb.Entry {
 			if i < ft.Params().Len()-1 {
 				t = ft.Params().At(i).Type()
 			} else {
-				t = ft.Params().At(ft.Params().Len() - 1).Type().(*types.Slice).Elem()
+				t = types.Unalias(ft.Params().At(ft.Params().Len() - 1).Type()).(*types.Slice).Elem()
 			}
 		} else {
 			t = ft.Params().At(i).Type()
@@ -739,12 +739,12 @@ func assignStats(c *cursor, as *dst.AssignStmt, parent dst.Node) []*spb.Entry {
 				continue
 			}
 
-			if _, ok := rhst.(*types.Tuple); !ok {
+			if _, ok := types.Unalias(rhst).(*types.Tuple); !ok {
 				continue
 			}
 
-			out = logConversion(c, out, nil, rhst.(*types.Tuple).At(i).Type(), lhst, as, parent, conversion)
-			out = logShallowCopy(c, out, nil, rhst.(*types.Tuple).At(i).Type(), as, parent, shallowCopy)
+			out = logConversion(c, out, nil, types.Unalias(rhst).(*types.Tuple).At(i).Type(), lhst, as, parent, conversion)
+			out = logShallowCopy(c, out, nil, types.Unalias(rhst).(*types.Tuple).At(i).Type(), as, parent, shallowCopy)
 		}
 	}
 	return out
@@ -817,7 +817,7 @@ Elt:
 				Type: spb.ShallowCopy_COMPOSITE_LITERAL_ELEMENT,
 			},
 		}
-		switch t := c.underlyingTypeOf(lit).(type) {
+		switch t := types.Unalias(c.underlyingTypeOf(lit)).(type) {
 		case *types.Pointer: // e.g. []*struct{m *pb.M}{{m2}}
 			if kv, ok := e.(*dst.KeyValueExpr); ok {
 				t := c.typeOfOrNil(kv.Key)
@@ -925,7 +925,7 @@ func sendStats(c *cursor, send *dst.SendStmt, parent dst.Node) []*spb.Entry {
 	if underlying == nil {
 		return logSiloed(c, nil, send, parent)
 	}
-	dst := underlying.(*types.Chan).Elem()
+	dst := types.Unalias(underlying).(*types.Chan).Elem()
 	out := logConversion(c, nil, send.Value, nil, dst, send, parent, &spb.Use{
 		Type: spb.Use_CONVERSION,
 		Conversion: &spb.Conversion{
@@ -962,13 +962,13 @@ func returnStats(c *cursor, ret *dst.ReturnStmt, parent dst.Node, parents map[ds
 		if pt == nil {
 			return logSiloed(c, nil, ret, parent)
 		}
-		sig = pt.(*types.Signature)
+		sig = types.Unalias(pt).(*types.Signature)
 	case *dst.FuncLit:
 		pt := c.typeOfOrNil(p)
 		if pt == nil {
 			return logSiloed(c, nil, ret, parent)
 		}
-		sig = pt.(*types.Signature)
+		sig = types.Unalias(pt).(*types.Signature)
 	default:
 		panic(fmt.Sprintf("invalid parent function type %T; must be *dst.FuncDecl or *dst.FuncLit", p))
 	}
@@ -991,7 +991,7 @@ func returnStats(c *cursor, ret *dst.ReturnStmt, parent dst.Node, parents map[ds
 		if rt0 == nil {
 			return logSiloed(c, nil, ret.Results[0], parent)
 		}
-		rt := rt0.(*types.Tuple)
+		rt := types.Unalias(rt0).(*types.Tuple)
 		if a, b := sig.Results().Len(), rt.Len(); a != b {
 			panic(fmt.Sprintf("number of function return value types (%d) doesn't match the number of returned values as a tuple (%d)", a, b))
 		}
@@ -1144,7 +1144,7 @@ func (c *cursor) isBuilderType(t types.Type) bool {
 	if p, ok := t.Underlying().(*types.Pointer); ok {
 		t = p.Elem()
 	}
-	nt, ok := t.(*types.Named)
+	nt, ok := types.Unalias(t).(*types.Named)
 	if !ok {
 		return false
 	}
@@ -1190,7 +1190,7 @@ func (c *cursor) shouldTrackType(t types.Type) bool {
 	name := strings.TrimPrefix(t.String(), "*")
 
 	t = t.Underlying()
-	if p, ok := t.(*types.Pointer); ok {
+	if p, ok := types.Unalias(t).(*types.Pointer); ok {
 		t = p.Elem()
 	}
 	if !(protodetecttypes.Type{T: t}.IsMessage()) {

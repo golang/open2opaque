@@ -317,10 +317,10 @@ func (c *cursor) useBuilder(lit *dst.CompositeLit) bool {
 	}
 
 	elem := c.typeOf(lit)
-	if ptr, ok := elem.(*types.Pointer); ok {
+	if ptr, ok := types.Unalias(elem).(*types.Pointer); ok {
 		elem = ptr.Elem()
 	}
-	if named, ok := elem.(*types.Named); ok {
+	if named, ok := types.Unalias(elem).(*types.Named); ok {
 		obj := named.Obj()
 		typeName := obj.Pkg().Path() + "." + obj.Name()
 		c.Logf("always use builders for %q? %v", typeName, c.builderTypes[typeName])
@@ -449,10 +449,10 @@ func (c *cursor) builderCLit(n dst.Node, parent dst.Node) (*dst.CompositeLit, bo
 func (c *cursor) selectorForProtoMessageType(t types.Type) *dst.SelectorExpr {
 	// Get to the elementary type (pb.M2) if this is a pointer type (*pb.M2).
 	elem := t
-	if ptr, ok := elem.(*types.Pointer); ok {
+	if ptr, ok := types.Unalias(elem).(*types.Pointer); ok {
 		elem = ptr.Elem()
 	}
-	named, ok := elem.(*types.Named)
+	named, ok := types.Unalias(elem).(*types.Named)
 	if !ok {
 		log.Fatalf("BUG: proto message unexpectedly not a named type (but %T)?!", elem)
 	}
@@ -518,16 +518,16 @@ func (c *cursor) isSideEffectFree(x dst.Expr) bool {
 }
 
 func isInterfaceVararg(t types.Type) bool {
-	vararg, ok := t.(*types.Slice)
+	vararg, ok := types.Unalias(t).(*types.Slice)
 	if !ok {
 		return false
 	}
-	_, ok = vararg.Elem().(*types.Interface)
+	_, ok = types.Unalias(vararg.Elem()).(*types.Interface)
 	return ok
 }
 
 func isString(t types.Type) bool {
-	b, ok := t.(*types.Basic)
+	b, ok := types.Unalias(t).(*types.Basic)
 	return ok && b.Kind() == types.String
 }
 
@@ -549,7 +549,7 @@ func (c *cursor) looksLikePrintf(n dst.Node) bool {
 			return true
 		}
 	}
-	sig, ok := c.typeOf(call.Fun).(*types.Signature)
+	sig, ok := types.Unalias(c.typeOf(call.Fun)).(*types.Signature)
 	if !ok {
 		return false
 	}
@@ -588,7 +588,7 @@ func (c *cursor) shouldUpdateType(t types.Type) bool {
 func (c *cursor) messageTypeName(t types.Type) (name string, ok bool) {
 	name = t.String()
 
-	if nt, ok := t.(*types.Named); ok && isPtr(nt.Underlying()) {
+	if nt, ok := types.Unalias(t).(*types.Named); ok && isPtr(nt.Underlying()) {
 		// A non-pointer named type whose underlying type is a pointer can be
 		// neither proto struct nor pointer to a proto struct. If we were to
 		// return "true" for such type, it was most likely "type T *pb.M" for some
@@ -596,11 +596,11 @@ func (c *cursor) messageTypeName(t types.Type) (name string, ok bool) {
 		return "", false
 	}
 
-	if p, ok := t.(*types.Pointer); ok {
+	if p, ok := types.Unalias(t).(*types.Pointer); ok {
 		t = p.Elem()
 	}
 
-	nt, ok := t.(*types.Named)
+	nt, ok := types.Unalias(t).(*types.Named)
 	if !ok {
 		return "", false
 	}
@@ -672,22 +672,22 @@ func (c *cursor) useClearOrHas(sel *dst.SelectorExpr) bool {
 	}
 	f := c.objectOf(sel.Sel).(*types.Var)
 	// Handle messages (either proto2 or proto3) and proto2 enums.
-	if p, ok := f.Type().(*types.Pointer); ok {
-		if _, ok := p.Elem().(*types.Named); ok {
+	if p, ok := types.Unalias(f.Type()).(*types.Pointer); ok {
+		if _, ok := types.Unalias(p.Elem()).(*types.Named); ok {
 			return true
 		}
 	}
 	// Handle non-enum proto2 scalars.
 	isProto2 := !isProto3Field(c.typeOf(sel.X), f.Name())
 	if isProto2 {
-		switch ft := f.Type().(type) {
+		switch ft := types.Unalias(f.Type()).(type) {
 		case *types.Pointer:
-			if _, ok := ft.Elem().(*types.Basic); ok {
+			if _, ok := types.Unalias(ft.Elem()).(*types.Basic); ok {
 				return true
 			}
 		case *types.Slice:
 			// Use Clear for bytes field, but not other repeated fields.
-			if basic, ok := ft.Elem().(*types.Basic); ok && basic.Kind() == types.Uint8 {
+			if basic, ok := types.Unalias(ft.Elem()).(*types.Basic); ok && basic.Kind() == types.Uint8 {
 				return true
 			}
 		}
@@ -728,7 +728,7 @@ func isProto3Field(m types.Type, field string) bool {
 
 // Exactly one of expr or t should be non-nil. expr can be nil only if t is *types.Basic
 func (c *cursor) newProtoHelperCall(expr dst.Expr, t types.Type) dst.Expr {
-	if _, ok := t.(*types.Basic); expr == nil && !ok {
+	if _, ok := types.Unalias(t).(*types.Basic); expr == nil && !ok {
 		panic(fmt.Sprintf("t must be *types.Basic if expr is nil, but it is %T", t))
 	}
 	if t == nil && expr == nil {
@@ -739,7 +739,7 @@ func (c *cursor) newProtoHelperCall(expr dst.Expr, t types.Type) dst.Expr {
 	}
 
 	// Enums are represented as named types in generated files.
-	if t, ok := t.(*types.Named); ok {
+	if t, ok := types.Unalias(t).(*types.Named); ok {
 		fun := &dst.SelectorExpr{
 			X:   expr,
 			Sel: &dst.Ident{Name: "Enum"},
@@ -755,7 +755,7 @@ func (c *cursor) newProtoHelperCall(expr dst.Expr, t types.Type) dst.Expr {
 		c.setType(out, types.NewPointer(t))
 		return out
 	}
-	bt := t.(*types.Basic)
+	bt := types.Unalias(t).(*types.Basic)
 	if expr == nil {
 		expr = scalarTypeZeroExpr(c, bt)
 	}
@@ -822,7 +822,7 @@ func (c *cursor) protoFieldSelector(expr dst.Node) (*dst.SelectorExpr, bool) {
 	if strings.HasPrefix(sel.Sel.Name, "XXX_") {
 		return nil, false
 	}
-	if _, ok := c.underlyingTypeOf(sel.Sel).(*types.Signature); ok {
+	if _, ok := types.Unalias(c.underlyingTypeOf(sel.Sel)).(*types.Signature); ok {
 		return nil, false
 	}
 	return sel, true
@@ -846,7 +846,7 @@ func (c *cursor) protoFieldSelectorOrAccessor(expr dst.Node) (*dst.SelectorExpr,
 	if strings.HasPrefix(sel.Sel.Name, "XXX_") {
 		return nil, nil, false
 	}
-	if sig, ok := c.underlyingTypeOf(sel.Sel).(*types.Signature); ok {
+	if sig, ok := types.Unalias(c.underlyingTypeOf(sel.Sel)).(*types.Signature); ok {
 		if strings.HasPrefix(sel.Sel.Name, "Has") ||
 			strings.HasPrefix(sel.Sel.Name, "Clear") ||
 			strings.HasPrefix(sel.Sel.Name, "Set") ||

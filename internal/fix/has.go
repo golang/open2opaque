@@ -130,9 +130,9 @@ func hasPre(c *cursor) bool {
 	if !ok {
 		return true
 	}
-	if s, ok := c.typeOf(field).(*types.Slice); ok {
+	if s, ok := types.Unalias(c.typeOf(field)).(*types.Slice); ok {
 		// use "len" for proto3 bytes fields.
-		if bt, ok := s.Elem().(*types.Basic); ok && bt.Kind() == types.Byte {
+		if bt, ok := types.Unalias(s.Elem()).(*types.Basic); ok && bt.Kind() == types.Byte {
 			// m.F == nil   => len(m.GetF()) == 0
 			// m.F != nil   => len(m.GetF()) != 0
 			var getVal dst.Expr = field

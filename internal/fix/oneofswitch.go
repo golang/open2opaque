@@ -550,11 +550,11 @@ func whichOneofSignature(t types.Type, name string) *types.Signature {
 	if !strings.HasPrefix(name, "Which") {
 		panic(fmt.Sprintf("whichOneofSignature called with %q; must have 'Which' prefix", name))
 	}
-	ptr, ok := t.(*types.Pointer)
+	ptr, ok := types.Unalias(t).(*types.Pointer)
 	if !ok {
 		return nil
 	}
-	typ, ok := ptr.Elem().(*types.Named)
+	typ, ok := types.Unalias(ptr.Elem()).(*types.Named)
 	if !ok {
 		return nil
 	}

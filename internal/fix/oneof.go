@@ -54,7 +54,7 @@ func generateOneofBuilderCases(c *cursor, updates []func(), lit *dst.CompositeLi
 	// First we need to collect an exhaustive list of alternatives. We do this
 	// by collecting all wrapper types for the given field that are defined in
 	// the generated proto package.
-	nt, ok := t.(*types.Named)
+	nt, ok := types.Unalias(t).(*types.Named)
 	if !ok {
 		c.Logf("ignoring oneof of type %T (looking for *types.Named)", c.Node())
 		return nil, false
@@ -105,7 +105,7 @@ func generateOneofBuilderCases(c *cursor, updates []func(), lit *dst.CompositeLi
 		if !idt.Exported() {
 			continue
 		}
-		nt, ok := idt.Type().(*types.Named)
+		nt, ok := types.Unalias(idt.Type()).(*types.Named)
 		if !ok {
 			continue
 		}
@@ -337,7 +337,7 @@ func destructureOneofWrapper(c *cursor, x dst.Expr) (string, types.Type, dst.Exp
 	if !ok {
 		return oneofWrapperSelector(c, x)
 	}
-	s, ok := c.underlyingTypeOf(clit).(*types.Struct)
+	s, ok := types.Unalias(c.underlyingTypeOf(clit)).(*types.Struct)
 	if !ok || s.NumFields() != 1 {
 		return oneofWrapperSelector(c, x)
 	}
@@ -381,7 +381,7 @@ func destructureOneofWrapper(c *cursor, x dst.Expr) (string, types.Type, dst.Exp
 			id := &dst.Ident{
 				Name: "byte",
 			}
-			c.setType(id, valType.(*types.Slice).Elem())
+			c.setType(id, types.Unalias(valType).(*types.Slice).Elem())
 			typ := &dst.ArrayType{
 				Elt: id,
 			}
@@ -399,7 +399,7 @@ func destructureOneofWrapper(c *cursor, x dst.Expr) (string, types.Type, dst.Exp
 		return s.Field(0).Name(), valType, valueOrDefault(c, "ValueOrDefaultBytes", val), decs, true
 	}
 	isMsgOneof := false
-	if ptr, ok := valType.(*types.Pointer); ok && (protodetecttypes.Type{T: ptr.Elem()}.IsMessage()) {
+	if ptr, ok := types.Unalias(valType).(*types.Pointer); ok && (protodetecttypes.Type{T: ptr.Elem()}.IsMessage()) {
 		isMsgOneof = true
 	}
 	if isMsgOneof && val != nil && !isNeverNilExpr(c, val) {
@@ -444,10 +444,10 @@ func oneofWrapperSelector(c *cursor, x dst.Expr) (string, types.Type, dst.Expr, 
 	c.numUnsafeRewritesByReason[MaybeOneofChange]++
 
 	t := c.underlyingTypeOf(x)
-	if p, ok := t.(*types.Pointer); ok {
+	if p, ok := types.Unalias(t).(*types.Pointer); ok {
 		t = p.Elem().Underlying()
 	}
-	s := t.(*types.Struct)
+	s := types.Unalias(t).(*types.Struct)
 	val := &dst.SelectorExpr{
 		X: x,
 		Sel: &dst.Ident{
@@ -457,7 +457,7 @@ func oneofWrapperSelector(c *cursor, x dst.Expr) (string, types.Type, dst.Expr, 
 	valType := s.Field(0).Type()
 	c.setType(val.Sel, valType)
 	c.setType(val, s.Field(0).Type())
-	if ptr, ok := valType.(*types.Pointer); ok && (protodetecttypes.Type{T: ptr.Elem()}.IsMessage()) {
+	if ptr, ok := types.Unalias(valType).(*types.Pointer); ok && (protodetecttypes.Type{T: ptr.Elem()}.IsMessage()) {
 		return s.Field(0).Name(), valType, valueOrDefault(c, "ValueOrDefault", val), decs, true
 	}
 	return s.Field(0).Name(), s.Field(0).Type(), val, decs, true

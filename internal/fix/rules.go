@@ -146,7 +146,7 @@ func scalarTypeZeroExpr(c *cursor, t types.Type) dst.Expr {
 		return out
 	}
 
-	bt, ok := t.(*types.Basic)
+	bt, ok := types.Unalias(t).(*types.Basic)
 	if !ok {
 		panic(fmt.Sprintf("scalarTypeZeroExpr called with %T", t))
 	}
@@ -235,21 +235,21 @@ func isPtr(t types.Type) bool {
 }
 
 func isBasic(t types.Type) bool {
-	_, ok := t.(*types.Basic)
+	_, ok := types.Unalias(t).(*types.Basic)
 	return ok
 }
 
 func isBytes(t types.Type) bool {
-	s, ok := t.(*types.Slice)
+	s, ok := types.Unalias(t).(*types.Slice)
 	if !ok {
 		return false
 	}
-	elem, ok := s.Elem().(*types.Basic)
+	elem, ok := types.Unalias(s.Elem()).(*types.Basic)
 	return ok && elem.Kind() == types.Byte
 }
 
 func isEnum(t types.Type) bool {
-	n, ok := t.(*types.Named)
+	n, ok := types.Unalias(t).(*types.Named)
 	if !ok {
 		return false
 	}
@@ -277,10 +277,10 @@ func isOneof(t types.Type) bool {
 
 func isOneofWrapper(c *cursor, x dst.Expr) bool {
 	t := c.underlyingTypeOf(x)
-	if p, ok := t.(*types.Pointer); ok {
+	if p, ok := types.Unalias(t).(*types.Pointer); ok {
 		t = p.Elem().Underlying()
 	}
-	s, ok := t.(*types.Struct)
+	s, ok := types.Unalias(t).(*types.Struct)
 	if !ok || s.NumFields() != 1 {
 		return false
 	}
@@ -328,7 +328,7 @@ func sel2call(c *cursor, prefix string, sel *dst.SelectorExpr, val dst.Expr, dec
 
 	t := c.underlyingTypeOf(sel.Sel)
 	if isPtrToBasic(t) {
-		t = t.(*types.Pointer).Elem()
+		t = types.Unalias(t).(*types.Pointer).Elem()
 	}
 	var pkg *types.Package
 	if use := c.objectOf(sel.Sel); use != nil {

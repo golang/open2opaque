@@ -71,7 +71,7 @@ func guaranteesExistenceOf(c *cursor, expr dst.Expr, sel *dst.SelectorExpr) bool
 		return false
 	}
 	fieldType := c.typeOf(sel)
-	if pt, ok := fieldType.(*types.Pointer); ok {
+	if pt, ok := types.Unalias(fieldType).(*types.Pointer); ok {
 		fieldType = pt.Elem()
 	}
 	// If expr a binary condition we check if it is a comparison against nil
@@ -167,7 +167,7 @@ func isHaserFor(c *cursor, expr dst.Expr, sel *dst.SelectorExpr) bool {
 
 // isScalarTypeZeroExpr returns true if e is a zero value for t
 func isScalarTypeZeroExpr(c *cursor, t types.Type, e dst.Expr) bool {
-	if _, ok := t.(*types.Basic); !isBytes(t) && !isEnum(t) && !ok {
+	if _, ok := types.Unalias(t).(*types.Basic); !isBytes(t) && !isEnum(t) && !ok {
 		return false
 	}
 	zeroExpr := scalarTypeZeroExpr(c, t)

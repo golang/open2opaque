@@ -160,7 +160,7 @@ func updateBuilderElements(c *cursor, lit *dst.CompositeLit) (ok bool) {
 		}
 
 		// Skip over fields that are not oneof.
-		if _, ok := c.underlyingTypeOf(kv.Key).(*types.Interface); !ok {
+		if _, ok := types.Unalias(c.underlyingTypeOf(kv.Key)).(*types.Interface); !ok {
 			c.Logf("skipping none oneof field", e)
 			continue
 		}
@@ -239,7 +239,7 @@ func updateBuilderElements(c *cursor, lit *dst.CompositeLit) (ok bool) {
 		if fieldValue == nil {
 			updates = append(updates, func() {
 				kv.Key.(*dst.Ident).Name = fieldName // Rename the key to field name from the oneof wrapper.
-				kv.Value = c.newProtoHelperCall(nil, fieldType.(*types.Basic))
+				kv.Value = c.newProtoHelperCall(nil, types.Unalias(fieldType).(*types.Basic))
 			})
 			c.Logf("generated RHS for field %v", fieldName)
 			continue

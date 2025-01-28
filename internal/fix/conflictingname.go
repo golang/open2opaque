@@ -11,10 +11,10 @@ import (
 
 func fixConflictingNames(t types.Type, prefix, name string) string {
 	if prefix != "" {
-		if pt, ok := t.(*types.Pointer); ok {
+		if pt, ok := types.Unalias(t).(*types.Pointer); ok {
 			t = pt.Elem()
 		}
-		st := t.(*types.Named).Underlying().(*types.Struct)
+		st := types.Unalias(t).(*types.Named).Underlying().(*types.Struct)
 		for i := 0; i < st.NumFields(); i++ {
 			if st.Field(i).Name() == prefix+name {
 				return "_" + name

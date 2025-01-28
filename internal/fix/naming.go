@@ -15,10 +15,10 @@ import (
 func helperVarNameForType(t types.Type) string {
 	// Get to the elementary type (pb.M2) if this is a pointer type (*pb.M2).
 	elem := t
-	if ptr, ok := elem.(*types.Pointer); ok {
+	if ptr, ok := types.Unalias(elem).(*types.Pointer); ok {
 		elem = ptr.Elem()
 	}
-	named, ok := elem.(*types.Named)
+	named, ok := types.Unalias(elem).(*types.Named)
 	if !ok {
 		log.Fatalf("BUG: proto message unexpectedly not a named type (but %T)?!", elem)
 	}
