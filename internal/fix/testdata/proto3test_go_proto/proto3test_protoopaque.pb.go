@@ -64,25 +64,38 @@ func (x M3_Enum) Number() protoreflect.EnumNumber {
 }
 
 type M3 struct {
-	state                 protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_B          bool                   `protobuf:"varint,1,opt,name=b,proto3" json:"b,omitempty"`
-	xxx_hidden_Bytes      []byte                 `protobuf:"bytes,2,opt,name=bytes,proto3" json:"bytes,omitempty"`
-	xxx_hidden_F32        float32                `protobuf:"fixed32,3,opt,name=f32,proto3" json:"f32,omitempty"`
-	xxx_hidden_F64        float64                `protobuf:"fixed64,4,opt,name=f64,proto3" json:"f64,omitempty"`
-	xxx_hidden_I32        int32                  `protobuf:"varint,5,opt,name=i32,proto3" json:"i32,omitempty"`
-	xxx_hidden_I64        int64                  `protobuf:"varint,6,opt,name=i64,proto3" json:"i64,omitempty"`
-	xxx_hidden_Ui32       uint32                 `protobuf:"varint,7,opt,name=ui32,proto3" json:"ui32,omitempty"`
-	xxx_hidden_Ui64       uint64                 `protobuf:"varint,8,opt,name=ui64,proto3" json:"ui64,omitempty"`
-	xxx_hidden_S          string                 `protobuf:"bytes,9,opt,name=s,proto3" json:"s,omitempty"`
-	xxx_hidden_M          *M3                    `protobuf:"bytes,10,opt,name=m,proto3" json:"m,omitempty"`
-	xxx_hidden_Is         []int32                `protobuf:"varint,11,rep,packed,name=is,proto3" json:"is,omitempty"`
-	xxx_hidden_Ms         *[]*M3                 `protobuf:"bytes,12,rep,name=ms,proto3" json:"ms,omitempty"`
-	xxx_hidden_Map        map[string]bool        `protobuf:"bytes,29,rep,name=map,proto3" json:"map,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
-	xxx_hidden_E          M3_Enum                `protobuf:"varint,13,opt,name=e,proto3,enum=net.proto2.go.open2opaque.o2o.test3.M3_Enum" json:"e,omitempty"`
-	xxx_hidden_OneofField isM3_OneofField        `protobuf_oneof:"oneof_field"`
-	xxx_hidden_SecondI32  int32                  `protobuf:"varint,30,opt,name=second_i32,json=secondI32,proto3" json:"second_i32,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_B           bool                   `protobuf:"varint,1,opt,name=b,proto3" json:"b,omitempty"`
+	xxx_hidden_Bytes       []byte                 `protobuf:"bytes,2,opt,name=bytes,proto3" json:"bytes,omitempty"`
+	xxx_hidden_F32         float32                `protobuf:"fixed32,3,opt,name=f32,proto3" json:"f32,omitempty"`
+	xxx_hidden_F64         float64                `protobuf:"fixed64,4,opt,name=f64,proto3" json:"f64,omitempty"`
+	xxx_hidden_I32         int32                  `protobuf:"varint,5,opt,name=i32,proto3" json:"i32,omitempty"`
+	xxx_hidden_I64         int64                  `protobuf:"varint,6,opt,name=i64,proto3" json:"i64,omitempty"`
+	xxx_hidden_Ui32        uint32                 `protobuf:"varint,7,opt,name=ui32,proto3" json:"ui32,omitempty"`
+	xxx_hidden_Ui64        uint64                 `protobuf:"varint,8,opt,name=ui64,proto3" json:"ui64,omitempty"`
+	xxx_hidden_S           string                 `protobuf:"bytes,9,opt,name=s,proto3" json:"s,omitempty"`
+	xxx_hidden_M           *M3                    `protobuf:"bytes,10,opt,name=m,proto3" json:"m,omitempty"`
+	xxx_hidden_Is          []int32                `protobuf:"varint,11,rep,packed,name=is,proto3" json:"is,omitempty"`
+	xxx_hidden_Ms          *[]*M3                 `protobuf:"bytes,12,rep,name=ms,proto3" json:"ms,omitempty"`
+	xxx_hidden_Map         map[string]bool        `protobuf:"bytes,29,rep,name=map,proto3" json:"map,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	xxx_hidden_E           M3_Enum                `protobuf:"varint,13,opt,name=e,proto3,enum=net.proto2.go.open2opaque.o2o.test3.M3_Enum" json:"e,omitempty"`
+	xxx_hidden_OneofField  isM3_OneofField        `protobuf_oneof:"oneof_field"`
+	xxx_hidden_SecondI32   int32                  `protobuf:"varint,30,opt,name=second_i32,json=secondI32,proto3" json:"second_i32,omitempty"`
+	xxx_hidden_OptB        bool                   `protobuf:"varint,31,opt,name=opt_b,json=optB,proto3,oneof" json:"opt_b,omitempty"`
+	xxx_hidden_OptBytes    []byte                 `protobuf:"bytes,32,opt,name=opt_bytes,json=optBytes,proto3,oneof" json:"opt_bytes,omitempty"`
+	xxx_hidden_OptF32      float32                `protobuf:"fixed32,33,opt,name=opt_f32,json=optF32,proto3,oneof" json:"opt_f32,omitempty"`
+	xxx_hidden_OptF64      float64                `protobuf:"fixed64,34,opt,name=opt_f64,json=optF64,proto3,oneof" json:"opt_f64,omitempty"`
+	xxx_hidden_OptI32      int32                  `protobuf:"varint,35,opt,name=opt_i32,json=optI32,proto3,oneof" json:"opt_i32,omitempty"`
+	xxx_hidden_OptI64      int64                  `protobuf:"varint,36,opt,name=opt_i64,json=optI64,proto3,oneof" json:"opt_i64,omitempty"`
+	xxx_hidden_OptUi32     uint32                 `protobuf:"varint,37,opt,name=opt_ui32,json=optUi32,proto3,oneof" json:"opt_ui32,omitempty"`
+	xxx_hidden_OptUi64     uint64                 `protobuf:"varint,38,opt,name=opt_ui64,json=optUi64,proto3,oneof" json:"opt_ui64,omitempty"`
+	xxx_hidden_OptS        *string                `protobuf:"bytes,39,opt,name=opt_s,json=optS,proto3,oneof" json:"opt_s,omitempty"`
+	xxx_hidden_OptM        *M3                    `protobuf:"bytes,40,opt,name=opt_m,json=optM,proto3,oneof" json:"opt_m,omitempty"`
+	xxx_hidden_OptE        M3_Enum                `protobuf:"varint,41,opt,name=opt_e,json=optE,proto3,enum=net.proto2.go.open2opaque.o2o.test3.M3_Enum,oneof" json:"opt_e,omitempty"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *M3) Reset() {
@@ -307,6 +320,88 @@ func (x *M3) GetSecondI32() int32 {
 	return 0
 }
 
+func (x *M3) GetOptB() bool {
+	if x != nil {
+		return x.xxx_hidden_OptB
+	}
+	return false
+}
+
+func (x *M3) GetOptBytes() []byte {
+	if x != nil {
+		return x.xxx_hidden_OptBytes
+	}
+	return nil
+}
+
+func (x *M3) GetOptF32() float32 {
+	if x != nil {
+		return x.xxx_hidden_OptF32
+	}
+	return 0
+}
+
+func (x *M3) GetOptF64() float64 {
+	if x != nil {
+		return x.xxx_hidden_OptF64
+	}
+	return 0
+}
+
+func (x *M3) GetOptI32() int32 {
+	if x != nil {
+		return x.xxx_hidden_OptI32
+	}
+	return 0
+}
+
+func (x *M3) GetOptI64() int64 {
+	if x != nil {
+		return x.xxx_hidden_OptI64
+	}
+	return 0
+}
+
+func (x *M3) GetOptUi32() uint32 {
+	if x != nil {
+		return x.xxx_hidden_OptUi32
+	}
+	return 0
+}
+
+func (x *M3) GetOptUi64() uint64 {
+	if x != nil {
+		return x.xxx_hidden_OptUi64
+	}
+	return 0
+}
+
+func (x *M3) GetOptS() string {
+	if x != nil {
+		if x.xxx_hidden_OptS != nil {
+			return *x.xxx_hidden_OptS
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *M3) GetOptM() *M3 {
+	if x != nil {
+		return x.xxx_hidden_OptM
+	}
+	return nil
+}
+
+func (x *M3) GetOptE() M3_Enum {
+	if x != nil {
+		if protoimpl.X.Present(&(x.XXX_presence[0]), 26) {
+			return x.xxx_hidden_OptE
+		}
+	}
+	return M3_E_VAL
+}
+
 func (x *M3) SetB(v bool) {
 	x.xxx_hidden_B = v
 }
@@ -417,6 +512,63 @@ func (x *M3) SetSecondI32(v int32) {
 	x.xxx_hidden_SecondI32 = v
 }
 
+func (x *M3) SetOptB(v bool) {
+	x.xxx_hidden_OptB = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 16, 27)
+}
+
+func (x *M3) SetOptBytes(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_OptBytes = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 17, 27)
+}
+
+func (x *M3) SetOptF32(v float32) {
+	x.xxx_hidden_OptF32 = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 18, 27)
+}
+
+func (x *M3) SetOptF64(v float64) {
+	x.xxx_hidden_OptF64 = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 19, 27)
+}
+
+func (x *M3) SetOptI32(v int32) {
+	x.xxx_hidden_OptI32 = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 20, 27)
+}
+
+func (x *M3) SetOptI64(v int64) {
+	x.xxx_hidden_OptI64 = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 21, 27)
+}
+
+func (x *M3) SetOptUi32(v uint32) {
+	x.xxx_hidden_OptUi32 = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 22, 27)
+}
+
+func (x *M3) SetOptUi64(v uint64) {
+	x.xxx_hidden_OptUi64 = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 23, 27)
+}
+
+func (x *M3) SetOptS(v string) {
+	x.xxx_hidden_OptS = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 24, 27)
+}
+
+func (x *M3) SetOptM(v *M3) {
+	x.xxx_hidden_OptM = v
+}
+
+func (x *M3) SetOptE(v M3_Enum) {
+	x.xxx_hidden_OptE = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 26, 27)
+}
+
 func (x *M3) HasM() bool {
 	if x == nil {
 		return false
@@ -511,6 +663,83 @@ func (x *M3) HasDescriptor() bool {
 	return ok
 }
 
+func (x *M3) HasOptB() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 16)
+}
+
+func (x *M3) HasOptBytes() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 17)
+}
+
+func (x *M3) HasOptF32() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 18)
+}
+
+func (x *M3) HasOptF64() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 19)
+}
+
+func (x *M3) HasOptI32() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 20)
+}
+
+func (x *M3) HasOptI64() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 21)
+}
+
+func (x *M3) HasOptUi32() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 22)
+}
+
+func (x *M3) HasOptUi64() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 23)
+}
+
+func (x *M3) HasOptS() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 24)
+}
+
+func (x *M3) HasOptM() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_OptM != nil
+}
+
+func (x *M3) HasOptE() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 26)
+}
+
 func (x *M3) ClearM() {
 	x.xxx_hidden_M = nil
 }
@@ -577,6 +806,60 @@ func (x *M3) ClearDescriptor() {
 	if _, ok := x.xxx_hidden_OneofField.(*m3_Descriptor_); ok {
 		x.xxx_hidden_OneofField = nil
 	}
+}
+
+func (x *M3) ClearOptB() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 16)
+	x.xxx_hidden_OptB = false
+}
+
+func (x *M3) ClearOptBytes() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 17)
+	x.xxx_hidden_OptBytes = nil
+}
+
+func (x *M3) ClearOptF32() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 18)
+	x.xxx_hidden_OptF32 = 0
+}
+
+func (x *M3) ClearOptF64() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 19)
+	x.xxx_hidden_OptF64 = 0
+}
+
+func (x *M3) ClearOptI32() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 20)
+	x.xxx_hidden_OptI32 = 0
+}
+
+func (x *M3) ClearOptI64() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 21)
+	x.xxx_hidden_OptI64 = 0
+}
+
+func (x *M3) ClearOptUi32() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 22)
+	x.xxx_hidden_OptUi32 = 0
+}
+
+func (x *M3) ClearOptUi64() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 23)
+	x.xxx_hidden_OptUi64 = 0
+}
+
+func (x *M3) ClearOptS() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 24)
+	x.xxx_hidden_OptS = nil
+}
+
+func (x *M3) ClearOptM() {
+	x.xxx_hidden_OptM = nil
+}
+
+func (x *M3) ClearOptE() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 26)
+	x.xxx_hidden_OptE = M3_E_VAL
 }
 
 const M3_OneofField_not_set_case case_M3_OneofField = 0
@@ -651,6 +934,18 @@ type M3_builder struct {
 	Descriptor   *string
 	// -- end of xxx_hidden_OneofField
 	SecondI32 int32
+	OptB      *bool
+	OptBytes  []byte
+	OptF32    *float32
+	OptF64    *float64
+	OptI32    *int32
+	OptI64    *int64
+	OptUi32   *uint32
+	OptUi64   *uint64
+	OptS      *string
+	OptM      *M3
+	// Repeated fields and maps cannot be optional.
+	OptE *M3_Enum
 }
 
 func (b0 M3_builder) Build() *M3 {
@@ -702,6 +997,47 @@ func (b0 M3_builder) Build() *M3 {
 		x.xxx_hidden_OneofField = &m3_Descriptor_{*b.Descriptor}
 	}
 	x.xxx_hidden_SecondI32 = b.SecondI32
+	if b.OptB != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 16, 27)
+		x.xxx_hidden_OptB = *b.OptB
+	}
+	if b.OptBytes != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 17, 27)
+		x.xxx_hidden_OptBytes = b.OptBytes
+	}
+	if b.OptF32 != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 18, 27)
+		x.xxx_hidden_OptF32 = *b.OptF32
+	}
+	if b.OptF64 != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 19, 27)
+		x.xxx_hidden_OptF64 = *b.OptF64
+	}
+	if b.OptI32 != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 20, 27)
+		x.xxx_hidden_OptI32 = *b.OptI32
+	}
+	if b.OptI64 != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 21, 27)
+		x.xxx_hidden_OptI64 = *b.OptI64
+	}
+	if b.OptUi32 != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 22, 27)
+		x.xxx_hidden_OptUi32 = *b.OptUi32
+	}
+	if b.OptUi64 != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 23, 27)
+		x.xxx_hidden_OptUi64 = *b.OptUi64
+	}
+	if b.OptS != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 24, 27)
+		x.xxx_hidden_OptS = b.OptS
+	}
+	x.xxx_hidden_OptM = b.OptM
+	if b.OptE != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 26, 27)
+		x.xxx_hidden_OptE = *b.OptE
+	}
 	return m0
 }
 
@@ -785,7 +1121,7 @@ var file_proto3test_proto_rawDesc = []byte{
 	0x0a, 0x10, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x70, 0x72, 0x6f,
 	0x74, 0x6f, 0x12, 0x23, 0x6e, 0x65, 0x74, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x32, 0x2e, 0x67,
 	0x6f, 0x2e, 0x6f, 0x70, 0x65, 0x6e, 0x32, 0x6f, 0x70, 0x61, 0x71, 0x75, 0x65, 0x2e, 0x6f, 0x32,
-	0x6f, 0x2e, 0x74, 0x65, 0x73, 0x74, 0x33, 0x22, 0xb0, 0x07, 0x0a, 0x02, 0x4d, 0x33, 0x12, 0x0c,
+	0x6f, 0x2e, 0x74, 0x65, 0x73, 0x74, 0x33, 0x22, 0xc9, 0x0b, 0x0a, 0x02, 0x4d, 0x33, 0x12, 0x0c,
 	0x0a, 0x01, 0x62, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x01, 0x62, 0x12, 0x14, 0x0a, 0x05,
 	0x62, 0x79, 0x74, 0x65, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x05, 0x62, 0x79, 0x74,
 	0x65, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x66, 0x33, 0x32, 0x18, 0x03, 0x20, 0x01, 0x28, 0x02, 0x52,
@@ -839,13 +1175,46 @@ var file_proto3test_proto_rawDesc = []byte{
 	0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x0a, 0x64, 0x65, 0x73, 0x63, 0x72, 0x69, 0x70, 0x74, 0x6f,
 	0x72, 0x12, 0x1d, 0x0a, 0x0a, 0x73, 0x65, 0x63, 0x6f, 0x6e, 0x64, 0x5f, 0x69, 0x33, 0x32, 0x18,
 	0x1e, 0x20, 0x01, 0x28, 0x05, 0x52, 0x09, 0x73, 0x65, 0x63, 0x6f, 0x6e, 0x64, 0x49, 0x33, 0x32,
-	0x1a, 0x36, 0x0a, 0x08, 0x4d, 0x61, 0x70, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03,
-	0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14,
-	0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x05, 0x76,
-	0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x22, 0x11, 0x0a, 0x04, 0x45, 0x6e, 0x75, 0x6d,
-	0x12, 0x09, 0x0a, 0x05, 0x45, 0x5f, 0x56, 0x41, 0x4c, 0x10, 0x00, 0x42, 0x0d, 0x0a, 0x0b, 0x6f,
-	0x6e, 0x65, 0x6f, 0x66, 0x5f, 0x66, 0x69, 0x65, 0x6c, 0x64, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x33,
+	0x12, 0x18, 0x0a, 0x05, 0x6f, 0x70, 0x74, 0x5f, 0x62, 0x18, 0x1f, 0x20, 0x01, 0x28, 0x08, 0x48,
+	0x01, 0x52, 0x04, 0x6f, 0x70, 0x74, 0x42, 0x88, 0x01, 0x01, 0x12, 0x20, 0x0a, 0x09, 0x6f, 0x70,
+	0x74, 0x5f, 0x62, 0x79, 0x74, 0x65, 0x73, 0x18, 0x20, 0x20, 0x01, 0x28, 0x0c, 0x48, 0x02, 0x52,
+	0x08, 0x6f, 0x70, 0x74, 0x42, 0x79, 0x74, 0x65, 0x73, 0x88, 0x01, 0x01, 0x12, 0x1c, 0x0a, 0x07,
+	0x6f, 0x70, 0x74, 0x5f, 0x66, 0x33, 0x32, 0x18, 0x21, 0x20, 0x01, 0x28, 0x02, 0x48, 0x03, 0x52,
+	0x06, 0x6f, 0x70, 0x74, 0x46, 0x33, 0x32, 0x88, 0x01, 0x01, 0x12, 0x1c, 0x0a, 0x07, 0x6f, 0x70,
+	0x74, 0x5f, 0x66, 0x36, 0x34, 0x18, 0x22, 0x20, 0x01, 0x28, 0x01, 0x48, 0x04, 0x52, 0x06, 0x6f,
+	0x70, 0x74, 0x46, 0x36, 0x34, 0x88, 0x01, 0x01, 0x12, 0x1c, 0x0a, 0x07, 0x6f, 0x70, 0x74, 0x5f,
+	0x69, 0x33, 0x32, 0x18, 0x23, 0x20, 0x01, 0x28, 0x05, 0x48, 0x05, 0x52, 0x06, 0x6f, 0x70, 0x74,
+	0x49, 0x33, 0x32, 0x88, 0x01, 0x01, 0x12, 0x1c, 0x0a, 0x07, 0x6f, 0x70, 0x74, 0x5f, 0x69, 0x36,
+	0x34, 0x18, 0x24, 0x20, 0x01, 0x28, 0x03, 0x48, 0x06, 0x52, 0x06, 0x6f, 0x70, 0x74, 0x49, 0x36,
+	0x34, 0x88, 0x01, 0x01, 0x12, 0x1e, 0x0a, 0x08, 0x6f, 0x70, 0x74, 0x5f, 0x75, 0x69, 0x33, 0x32,
+	0x18, 0x25, 0x20, 0x01, 0x28, 0x0d, 0x48, 0x07, 0x52, 0x07, 0x6f, 0x70, 0x74, 0x55, 0x69, 0x33,
+	0x32, 0x88, 0x01, 0x01, 0x12, 0x1e, 0x0a, 0x08, 0x6f, 0x70, 0x74, 0x5f, 0x75, 0x69, 0x36, 0x34,
+	0x18, 0x26, 0x20, 0x01, 0x28, 0x04, 0x48, 0x08, 0x52, 0x07, 0x6f, 0x70, 0x74, 0x55, 0x69, 0x36,
+	0x34, 0x88, 0x01, 0x01, 0x12, 0x18, 0x0a, 0x05, 0x6f, 0x70, 0x74, 0x5f, 0x73, 0x18, 0x27, 0x20,
+	0x01, 0x28, 0x09, 0x48, 0x09, 0x52, 0x04, 0x6f, 0x70, 0x74, 0x53, 0x88, 0x01, 0x01, 0x12, 0x41,
+	0x0a, 0x05, 0x6f, 0x70, 0x74, 0x5f, 0x6d, 0x18, 0x28, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e,
+	0x6e, 0x65, 0x74, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x32, 0x2e, 0x67, 0x6f, 0x2e, 0x6f, 0x70,
+	0x65, 0x6e, 0x32, 0x6f, 0x70, 0x61, 0x71, 0x75, 0x65, 0x2e, 0x6f, 0x32, 0x6f, 0x2e, 0x74, 0x65,
+	0x73, 0x74, 0x33, 0x2e, 0x4d, 0x33, 0x48, 0x0a, 0x52, 0x04, 0x6f, 0x70, 0x74, 0x4d, 0x88, 0x01,
+	0x01, 0x12, 0x46, 0x0a, 0x05, 0x6f, 0x70, 0x74, 0x5f, 0x65, 0x18, 0x29, 0x20, 0x01, 0x28, 0x0e,
+	0x32, 0x2c, 0x2e, 0x6e, 0x65, 0x74, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x32, 0x2e, 0x67, 0x6f,
+	0x2e, 0x6f, 0x70, 0x65, 0x6e, 0x32, 0x6f, 0x70, 0x61, 0x71, 0x75, 0x65, 0x2e, 0x6f, 0x32, 0x6f,
+	0x2e, 0x74, 0x65, 0x73, 0x74, 0x33, 0x2e, 0x4d, 0x33, 0x2e, 0x45, 0x6e, 0x75, 0x6d, 0x48, 0x0b,
+	0x52, 0x04, 0x6f, 0x70, 0x74, 0x45, 0x88, 0x01, 0x01, 0x1a, 0x36, 0x0a, 0x08, 0x4d, 0x61, 0x70,
+	0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38,
+	0x01, 0x22, 0x11, 0x0a, 0x04, 0x45, 0x6e, 0x75, 0x6d, 0x12, 0x09, 0x0a, 0x05, 0x45, 0x5f, 0x56,
+	0x41, 0x4c, 0x10, 0x00, 0x42, 0x0d, 0x0a, 0x0b, 0x6f, 0x6e, 0x65, 0x6f, 0x66, 0x5f, 0x66, 0x69,
+	0x65, 0x6c, 0x64, 0x42, 0x08, 0x0a, 0x06, 0x5f, 0x6f, 0x70, 0x74, 0x5f, 0x62, 0x42, 0x0c, 0x0a,
+	0x0a, 0x5f, 0x6f, 0x70, 0x74, 0x5f, 0x62, 0x79, 0x74, 0x65, 0x73, 0x42, 0x0a, 0x0a, 0x08, 0x5f,
+	0x6f, 0x70, 0x74, 0x5f, 0x66, 0x33, 0x32, 0x42, 0x0a, 0x0a, 0x08, 0x5f, 0x6f, 0x70, 0x74, 0x5f,
+	0x66, 0x36, 0x34, 0x42, 0x0a, 0x0a, 0x08, 0x5f, 0x6f, 0x70, 0x74, 0x5f, 0x69, 0x33, 0x32, 0x42,
+	0x0a, 0x0a, 0x08, 0x5f, 0x6f, 0x70, 0x74, 0x5f, 0x69, 0x36, 0x34, 0x42, 0x0b, 0x0a, 0x09, 0x5f,
+	0x6f, 0x70, 0x74, 0x5f, 0x75, 0x69, 0x33, 0x32, 0x42, 0x0b, 0x0a, 0x09, 0x5f, 0x6f, 0x70, 0x74,
+	0x5f, 0x75, 0x69, 0x36, 0x34, 0x42, 0x08, 0x0a, 0x06, 0x5f, 0x6f, 0x70, 0x74, 0x5f, 0x73, 0x42,
+	0x08, 0x0a, 0x06, 0x5f, 0x6f, 0x70, 0x74, 0x5f, 0x6d, 0x42, 0x08, 0x0a, 0x06, 0x5f, 0x6f, 0x70,
+	0x74, 0x5f, 0x65, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var file_proto3test_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
@@ -862,11 +1231,13 @@ var file_proto3test_proto_depIdxs = []int32{
 	0, // 3: net.proto2.go.open2opaque.o2o.test3.M3.e:type_name -> net.proto2.go.open2opaque.o2o.test3.M3.Enum
 	1, // 4: net.proto2.go.open2opaque.o2o.test3.M3.msg_oneof:type_name -> net.proto2.go.open2opaque.o2o.test3.M3
 	0, // 5: net.proto2.go.open2opaque.o2o.test3.M3.enum_oneof:type_name -> net.proto2.go.open2opaque.o2o.test3.M3.Enum
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	1, // 6: net.proto2.go.open2opaque.o2o.test3.M3.opt_m:type_name -> net.proto2.go.open2opaque.o2o.test3.M3
+	0, // 7: net.proto2.go.open2opaque.o2o.test3.M3.opt_e:type_name -> net.proto2.go.open2opaque.o2o.test3.M3.Enum
+	8, // [8:8] is the sub-list for method output_type
+	8, // [8:8] is the sub-list for method input_type
+	8, // [8:8] is the sub-list for extension type_name
+	8, // [8:8] is the sub-list for extension extendee
+	0, // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_proto3test_proto_init() }
