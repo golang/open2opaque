@@ -761,12 +761,9 @@ func usesFeature(fopt *protoparse.FileOpt) bool {
 
 func cleanupGoFeaturesImport(path string, content []byte) ([]byte, error) {
 	const featuresProto = "google/protobuf/go_features.proto"
-	parser := protoparse.NewParserWithAccessor(func(string) (io.ReadCloser, error) {
-		return io.NopCloser(bytes.NewReader(content)), nil
-	})
-	fopt, err := parser.ParseFile(path, false)
+	fopt, err := parse(path, content, false)
 	if err != nil {
-		return nil, fmt.Errorf("error reading file %s: %w", path, err)
+		return nil, fmt.Errorf("parse: %v", err)
 	}
 	desc := fopt.Desc
 	goFeaturesImported := slices.ContainsFunc(
