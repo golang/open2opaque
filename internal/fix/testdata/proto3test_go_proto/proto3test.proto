@@ -38,4 +38,17 @@ message M3 {
     string descriptor = 28;
   }
   int32 second_i32 = 30;
+
+  optional bool opt_b = 31;
+  optional bytes opt_bytes = 32;
+  optional float opt_f32 = 33;
+  optional double opt_f64 = 34;
+  optional int32 opt_i32 = 35;
+  optional int64 opt_i64 = 36;
+  optional uint32 opt_ui32 = 37;
+  optional uint64 opt_ui64 = 38;
+  optional string opt_s = 39;
+  optional M3 opt_m = 40;
+  // Repeated fields and maps cannot be optional.
+  optional Enum opt_e = 41;
 }

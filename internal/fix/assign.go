@@ -445,8 +445,8 @@ func rewriteFieldAssign(c *cursor, lhs, rhs dst.Expr, decs dst.NodeDecs) (dst.St
 	if _, ok := c.Parent().(*dst.BlockStmt); ok {
 		c.Logf("rewriting assignment with rhs Expr")
 		f := c.objectOf(lhsSel.Sel).(*types.Var)
-		isProto2 := !isProto3Field(c.typeOf(lhsSel.X), f.Name())
-		if slice, ok := types.Unalias(f.Type()).(*types.Slice); ok && isProto2 {
+		explicitPresence := fieldHasExplicitPresence(c.typeOf(lhsSel.X), f.Name())
+		if slice, ok := types.Unalias(f.Type()).(*types.Slice); ok && explicitPresence {
 			if basic, ok := types.Unalias(slice.Elem()).(*types.Basic); ok && basic.Kind() == types.Uint8 {
 				if isNeverNilSliceExpr(c, rhs) {
 					stmt := c.expr2stmt(sel2call(c, "Set", lhsSel, rhs, decs), lhsSel)

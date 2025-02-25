@@ -677,9 +677,9 @@ func (c *cursor) useClearOrHas(sel *dst.SelectorExpr) bool {
 			return true
 		}
 	}
-	// Handle non-enum proto2 scalars.
-	isProto2 := !isProto3Field(c.typeOf(sel.X), f.Name())
-	if isProto2 {
+
+	// Handle non-enum scalars.
+	if fieldHasExplicitPresence(c.typeOf(sel.X), f.Name()) {
 		switch ft := types.Unalias(f.Type()).(type) {
 		case *types.Pointer:
 			if _, ok := types.Unalias(ft.Elem()).(*types.Basic); ok {
@@ -695,18 +695,21 @@ func (c *cursor) useClearOrHas(sel *dst.SelectorExpr) bool {
 	return false
 }
 
-// isProto3Field returns true if given message is a proto3 message based on given field, else false.
-// It uses the "protobuf" struct tag on the field to determine if it contains "proto3" or not.
+// fieldHasExplicitPresence reports whether the specified field has explicit
+// presence: proto2 and edition 2023+ have explicit presence, proto3 defaults
+// to implicit presence, but offers explicit presence through the optional
+// keyword. See also https://protobuf.dev/programming-guides/field_presence/
 //
-// This function considers both value and pointer types to be protocol buffer messages.
-func isProto3Field(m types.Type, field string) bool {
+// This function considers both value and pointer types to be protocol buffer
+// messages.
+func fieldHasExplicitPresence(m types.Type, field string) bool {
 	p, ok := m.Underlying().(*types.Pointer)
 	if ok {
 		m = p.Elem()
 	}
 	s, ok := m.Underlying().(*types.Struct)
 	if !ok {
-		return false
+		return true
 	}
 
 	numFields := s.NumFields()
@@ -720,10 +723,14 @@ func isProto3Field(m types.Type, field string) bool {
 			if i := strings.Index(pb, ",def="); i > -1 {
 				pb = pb[:i]
 			}
-			return strings.Contains(pb, ",proto3")
+			if !strings.Contains(pb, ",proto3") {
+				return true // not proto3? field has explicit presence
+			}
+			// proto3 optional fields are implemented with synthetic oneofs.
+			return strings.Contains(pb, ",oneof")
 		}
 	}
-	return false
+	return true
 }
 
 // Exactly one of expr or t should be non-nil. expr can be nil only if t is *types.Basic

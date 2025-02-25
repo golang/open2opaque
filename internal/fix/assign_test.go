@@ -1583,3 +1583,39 @@ _ = m
 
 	runTableTest(t, tt)
 }
+
+func TestProto3Optional(t *testing.T) {
+	tests := []test{{
+		desc: "clear all optional fields",
+		in: `
+m := &pb3.M3{}
+m.OptB = nil
+m.OptF32 = nil
+m.OptF64 = nil
+m.OptI32 = nil
+m.OptI64 = nil
+m.OptUi32 = nil
+m.OptUi64 = nil
+m.OptS = nil
+m.OptM = nil
+m.OptE = nil
+`,
+		want: map[Level]string{
+			Green: `
+m := &pb3.M3{}
+m.ClearOptB()
+m.ClearOptF32()
+m.ClearOptF64()
+m.ClearOptI32()
+m.ClearOptI64()
+m.ClearOptUi32()
+m.ClearOptUi64()
+m.ClearOptS()
+m.ClearOptM()
+m.ClearOptE()
+`,
+		},
+	}}
+
+	runTableTests(t, tests)
+}
