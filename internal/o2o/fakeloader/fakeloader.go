@@ -44,7 +44,7 @@ type fakeLoader struct {
 // should have "_test" suffix.
 //
 // files maps all files (e.g. "//test/pkg:updated.go"), referenced by the pkgs map, to their content.
-// generated maps generated files (e.g. "//test/pkg:generated.go"), referenced by the pkgs map, to ther content.
+// generated maps generated files (e.g. "//test/pkg:generated.go"), referenced by the pkgs map, to their content.
 //
 // Unlike the loader returned by NewLoader, the fake loader is inexpensive. It's
 // intended that multiple fake loaders are created (perhaps one per test).
