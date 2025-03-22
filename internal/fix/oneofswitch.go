@@ -83,7 +83,7 @@ func oneofSwitchPost(c *cursor) bool {
 	// in one place, at the top. We use those to rewrite oneof field access
 	// through field/getter later on. Ideally, we would use object identity
 	// instead of comparison by name, but we can't get that without messing with
-	// names, so we might as well got for name comaprisons.
+	// names, so we might as well got for name comparisons.
 	var oneofFieldName string // "F" in "X.F.(type)" or "X.GetF().(type)"
 	var oneofGetName string   // "GetF" corresponding to oneofFieldName
 
