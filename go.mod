@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/dave/dst v0.27.3
-	github.com/golang/glog v1.2.2
+	github.com/golang/glog v1.2.4
 	github.com/google/go-cmp v0.6.0
 	github.com/google/subcommands v1.2.0
 	github.com/jhump/protoreflect v1.17.0
