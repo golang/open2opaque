@@ -7,6 +7,7 @@ edition = "2023";
 package net.proto2.go.open2opaque.o2o.test;
 
 import "google/protobuf/go_features.proto";
+import "google/protobuf/empty.proto";
 
 message DoNotMigrateMe {
   option features.(pb.go).api_level = API_OPEN;
@@ -40,6 +41,7 @@ message M2 {
     M2 msg_oneof = 16;
     Enum enum_oneof = 17;
     bytes bytes_oneof = 18;
+    google.protobuf.Empty empty_oneof = 99;
   }
   oneof oneof_field2 {
     string string_oneof2 = 19;

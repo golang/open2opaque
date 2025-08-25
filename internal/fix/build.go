@@ -197,29 +197,8 @@ func updateBuilderElements(c *cursor, lit *dst.CompositeLit) (ok bool) {
 			continue
 		}
 
-		// Don't rewrite the oneof in
-		//
-		//   &pb.M2{OneofField: &pb.M2_MsgOneof{}}
-		//   &pb.M2{OneofField: &pb.M2_EnumOneof{}}
-		//
-		// It's a tricky case and should be very rare because "oneof
-		// with a type but without a value" is not a valid protocol buffers
-		// concept.
-		//
-		// It happens due to a mismatch between what's allowed in protocol buffers
-		// and the Go structs representing protocol buffers in the open API.
-		// This information will not be marshalled to the wire and the field
-		// is effectively discarded during marshalling when it does not have
-		// a value.
-		//
-		// The opaque API does not allow this. While the struct can technically
-		// represent this, you cannot use the API to bring the struct into
-		// this state.
-		//
-		// For enums: this should be rare and we don't want to guess the default
-		// value.
-		if fieldValue == nil && !isBasic(fieldType) {
-			c.Logf("returning: RHS is nil of Type %T (looking for types.Basic)", fieldType)
+		if fieldValue == nil && !isBasic(fieldType) && !isPtr(fieldType) && !isEnum(fieldType) {
+			c.Logf("returning: RHS is nil of Type %T (looking for types.Basic or types.Pointer)", fieldType)
 			return false
 		}
 
@@ -235,11 +214,27 @@ func updateBuilderElements(c *cursor, lit *dst.CompositeLit) (ok bool) {
 			unsafeRewrite = true
 		}
 
-		// Handle `M{Oneof: OneofBasicField{}}`
+		// Handle `M{Oneof: OneofBasicField{}}`, `M{Oneof: OneofMsgField{}}` or
+		// `M{Oneof: OneofEnumField{}}`
 		if fieldValue == nil {
 			updates = append(updates, func() {
 				kv.Key.(*dst.Ident).Name = fieldName // Rename the key to field name from the oneof wrapper.
-				kv.Value = c.newProtoHelperCall(nil, types.Unalias(fieldType).(*types.Basic))
+				if isBasic(fieldType) {
+					kv.Value = c.newProtoHelperCall(nil, types.Unalias(fieldType).(*types.Basic))
+				} else if isPtr(fieldType) {
+					lit := &dst.CompositeLit{
+						Type: c.selectorForProtoMessageType(fieldType),
+					}
+					c.setType(lit, fieldType)
+					kv.Value = &dst.UnaryExpr{
+						Op: token.AND,
+						X:  lit,
+					}
+					c.setType(kv.Value, fieldType)
+				} else { /* must be isEnum(fieldType) */
+					kv.Value = &dst.Ident{Name: "0"}
+					c.setType(kv.Value, types.Typ[types.Invalid])
+				}
 			})
 			c.Logf("generated RHS for field %v", fieldName)
 			continue

@@ -411,6 +411,9 @@ func (cpkg *ConfiguredPackage) Fix() (Result, error) {
 					for _, imp := range c.imports.importsToAdd {
 						cur.InsertAfter(imp)
 						c.setType(imp.Path, types.Typ[types.Invalid])
+						if imp.Name != nil {
+							c.setType(imp.Name, types.Typ[types.Invalid])
+						}
 					}
 					return false // import added, abort traversal
 				})

@@ -451,6 +451,7 @@ _ = &pb2.M2{
 _ = pb2.M2_builder{
 	// comment before
 	BytesOneof:/*comment1*/ m2.GetBytesOneof(), // eol comment
+	EmptyOneof:                                 m2.GetEmptyOneof(),
 	EnumOneof:                                  proto.ValueOrNil(m2.HasEnumOneof(), m2.GetEnumOneof),
 	IntOneof:                                   proto.ValueOrNil(m2.HasIntOneof(), m2.GetIntOneof),
 	MsgOneof:                                   m2.GetMsgOneof(),
@@ -461,6 +462,7 @@ _ = pb2.M2_builder{
 _ = pb2.M2_builder{
 	// comment before
 	BytesOneof:/*comment1*/ m2.GetBytesOneof(), // eol comment
+	EmptyOneof:                                 m2.GetEmptyOneof(),
 	EnumOneof:                                  proto.ValueOrNil(m2.HasEnumOneof(), m2.GetEnumOneof),
 	IntOneof:                                   proto.ValueOrNil(m2.HasIntOneof(), m2.GetIntOneof),
 	MsgOneof:                                   m2.GetMsgOneof(),
@@ -522,6 +524,7 @@ _ = &pb2.M2{OneofField: ifaceOneof}
 _ = pb2.M2_builder{
 	S:           proto.String("42"),
 	BytesOneof:  m2.GetBytesOneof(),
+	EmptyOneof:  m2.GetEmptyOneof(),
 	EnumOneof:   proto.ValueOrNil(m2.HasEnumOneof(), m2.GetEnumOneof),
 	IntOneof:    proto.ValueOrNil(m2.HasIntOneof(), m2.GetIntOneof),
 	MsgOneof:    m2.GetMsgOneof(),
@@ -543,6 +546,7 @@ _ = pb2.M2_builder{OneofField: ifaceOneof}.Build()
 _ = pb2.M2_builder{
 	S:           proto.String("42"),
 	BytesOneof:  m2.GetBytesOneof(),
+	EmptyOneof:  m2.GetEmptyOneof(),
 	EnumOneof:   proto.ValueOrNil(m2.HasEnumOneof(), m2.GetEnumOneof),
 	IntOneof:    proto.ValueOrNil(m2.HasIntOneof(), m2.GetIntOneof),
 	MsgOneof:    m2.GetMsgOneof(),
@@ -570,26 +574,29 @@ _ = pb2.M2_builder{MsgOneof: proto.ValueOrDefault(msg)}.Build()
 		desc: "oneofs: msg zero value",
 		in: `
 _ = &pb2.M2{OneofField: &pb2.M2_MsgOneof{}}
+_ = &pb2.M2{OneofField: &pb2.M2_EmptyOneof{}}
 `,
 		want: map[Level]string{
 			Green: `
 _ = &pb2.M2{OneofField: &pb2.M2_MsgOneof{}}
+_ = &pb2.M2{OneofField: &pb2.M2_EmptyOneof{}}
 `,
 			Red: `
-_ = pb2.M2_builder{OneofField: &pb2.M2_MsgOneof{}}.Build()
+_ = pb2.M2_builder{MsgOneof: &pb2.M2{}}.Build()
+_ = pb2.M2_builder{EmptyOneof: &xpb.Empty{}}.Build()
 `,
 		},
 	}, {
-		desc: "oneofs: enum zero value", // no rewrite (see comments in rules.go)
+		desc: "oneofs: enum zero value",
 		in: `
 _ = &pb2.M2{OneofField: &pb2.M2_EnumOneof{}}
 `,
 		want: map[Level]string{
 			Green: `
-_ = &pb2.M2{OneofField: &pb2.M2_EnumOneof{}}
+_ = pb2.M2_builder{EnumOneof: 0}.Build()
 `,
 			Red: `
-_ = pb2.M2_builder{OneofField: &pb2.M2_EnumOneof{}}.Build()
+_ = pb2.M2_builder{EnumOneof: 0}.Build()
 `,
 		},
 	}, {
@@ -617,10 +624,10 @@ _ = &pb2.M2{
 		want: map[Level]string{
 			Green: `
 msg := &pb2.M2{}
-_ = &pb2.M2{
-	OneofField:  &pb2.M2_StringOneof{"hello"},
-	OneofField2: &pb2.M2_EnumOneof2{},
-}
+_ = pb2.M2_builder{
+	StringOneof: proto.String("hello"),
+	EnumOneof2:  0,
+}.Build()
 _ = &pb2.M2{
 	OneofField:  &pb2.M2_StringOneof{"hello"},
 	OneofField2: &pb2.M2_MsgOneof2{msg},
@@ -636,18 +643,18 @@ _ = &pb2.M2{
 `,
 			Yellow: `
 msg := &pb2.M2{}
-_ = &pb2.M2{
-	OneofField:  &pb2.M2_StringOneof{"hello"},
-	OneofField2: &pb2.M2_EnumOneof2{},
-}
+_ = pb2.M2_builder{
+	StringOneof: proto.String("hello"),
+	EnumOneof2:  0,
+}.Build()
 _ = pb2.M2_builder{
 	StringOneof: proto.String("hello"),
 	MsgOneof2:   proto.ValueOrDefault(msg),
 }.Build()
-_ = &pb2.M2{
-	OneofField:  &pb2.M2_StringOneof{"hello"},
-	OneofField2: &pb2.M2_MsgOneof2{},
-}
+_ = pb2.M2_builder{
+	StringOneof: proto.String("hello"),
+	MsgOneof2:   &pb2.M2{},
+}.Build()
 _ = &pb2.M2{
 	OneofField:  &pb2.M2_StringOneof{"hello"},
 	OneofField2: F(),
