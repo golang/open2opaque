@@ -138,7 +138,12 @@ func (imp *imports) lookup(path, name string) types.Object {
 // name and replace it with something more descriptive and more inline with the
 // respective team style.
 func (imp *imports) findAvailableName(path string) string {
-	if !strings.HasSuffix(path, "go_proto") {
+	// Google-internally, all protobuf generated code packages end in go_proto.
+	// Externally, we at least recognize the well-known types,
+	// such that our tests behave the same way internally and externally.
+	isProtoImport := strings.HasSuffix(path, "go_proto") ||
+		strings.HasPrefix(path, "google.golang.org/protobuf/types/")
+	if !isProtoImport {
 		// default name for non proto imports, assumed to be available
 		return filepath.Base(path)
 	}

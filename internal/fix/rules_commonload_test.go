@@ -47,6 +47,7 @@ func goListBase() (*fakeLoaderBase, error) {
 		"google.golang.org/open2opaque/internal/fix/testdata/proto3test_go_proto": true,
 		"google.golang.org/protobuf/proto":                                        true,
 		"google.golang.org/protobuf/types/gofeaturespb":                           true,
+		"google.golang.org/protobuf/types/known/emptypb":                          true,
 		// Imported by .pb.go files:
 		"google.golang.org/protobuf/reflect/protoreflect": true,
 		"google.golang.org/protobuf/runtime/protoimpl":    true,
