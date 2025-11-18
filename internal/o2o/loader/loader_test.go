@@ -97,9 +97,7 @@ func TestUsesRealBlaze(t *testing.T) {
 func testConfig(t *testing.T) *loader.Config {
 	t.Helper()
 
-	cfg := &loader.Config{}
-
-	return cfg
+	return &loader.Config{}
 }
 
 func TestDiscoversSourceFiles(t *testing.T) {
