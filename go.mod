@@ -1,6 +1,6 @@
 module google.golang.org/open2opaque
 
-go 1.23.0
+go 1.25.0
 
 require (
 	github.com/dave/dst v0.27.3
@@ -9,14 +9,14 @@ require (
 	github.com/google/subcommands v1.2.0
 	github.com/jhump/protoreflect v1.17.0
 	github.com/kylelemons/godebug v1.1.0
-	golang.org/x/exp v0.0.0-20250531010427-b6e5de432a8b
-	golang.org/x/sync v0.14.0
-	golang.org/x/tools v0.33.0
+	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f
+	golang.org/x/sync v0.20.0
+	golang.org/x/tools v0.44.0
 	google.golang.org/protobuf v1.36.1
 )
 
 require (
 	github.com/bufbuild/protocompile v0.14.1 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
-	golang.org/x/mod v0.24.0 // indirect
+	golang.org/x/mod v0.35.0 // indirect
 )
