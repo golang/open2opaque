@@ -211,6 +211,18 @@ if m3.SetBytes(b); false {
 			Green: `m2.SetI32(0)`,
 		},
 	}, {
+		desc: "proto2: set proto.Int new value",
+		in:   `m2.I32 = new(int32(42))`,
+		want: map[Level]string{
+			Green: `m2.SetI32(int32(42))`,
+		},
+	}, {
+		desc: "proto2: set bool new value",
+		in:   `m2.B = new(true)`,
+		want: map[Level]string{
+			Green: `m2.SetB(true)`,
+		},
+	}, {
 		desc: "proto2: set enum",
 		in:   `m2.E = pb2.M2_E_VAL.Enum()`,
 		want: map[Level]string{
@@ -221,6 +233,26 @@ if m3.SetBytes(b); false {
 		in:   `m2.E = new(pb2.M2_Enum)`,
 		want: map[Level]string{
 			Green: `m2.SetE(pb2.M2_Enum(0))`,
+		},
+	}, {
+		desc:     "proto2: set bool new value in composite literal",
+		srcfiles: []string{"pkg.go"},
+		in: `
+x := &pb2.M2{B: new(true)}
+_ = x
+`,
+		want: map[Level]string{
+			Green: `
+x := &pb2.M2{}
+x.SetB(true)
+_ = x
+`,
+		},
+	}, {
+		desc: "proto2: set enum new value",
+		in:   `m2.E = new(pb2.M2_E_VAL)`,
+		want: map[Level]string{
+			Green: `m2.SetE(pb2.M2_E_VAL)`,
 		},
 	}, {
 		desc: "proto2: set proto.Int32",
@@ -307,6 +339,56 @@ if m2.HasS() {
 		in:   "m3.M = new(pb3.M3)",
 		want: map[Level]string{
 			Green: "m3.SetM(new(pb3.M3))",
+		},
+	}, {
+		desc: "proto3: set optional scalar new",
+		in:   `m3.OptI32 = new(int32)`,
+		want: map[Level]string{
+			Green: `m3.SetOptI32(0)`,
+		},
+	}, {
+		desc: "proto3: set optional scalar new value",
+		in:   `m3.OptI32 = new(int32(42))`,
+		want: map[Level]string{
+			Green: `m3.SetOptI32(int32(42))`,
+		},
+	}, {
+		desc: "proto3: set optional bool new",
+		in:   `m3.OptB = new(bool)`,
+		want: map[Level]string{
+			Green: `m3.SetOptB(false)`,
+		},
+	}, {
+		desc: "proto3: set optional bool new value",
+		in:   `m3.OptB = new(true)`,
+		want: map[Level]string{
+			Green: `m3.SetOptB(true)`,
+		},
+	}, {
+		desc:     "proto3: set optional bool new value in composite literal",
+		srcfiles: []string{"pkg.go"},
+		in: `
+x := &pb3.M3{OptB: new(true)}
+_ = x
+`,
+		want: map[Level]string{
+			Green: `
+x := &pb3.M3{}
+x.SetOptB(true)
+_ = x
+`,
+		},
+	}, {
+		desc: "proto3: set optional enum new",
+		in:   `m3.OptE = new(pb3.M3_Enum)`,
+		want: map[Level]string{
+			Green: `m3.SetOptE(pb3.M3_Enum(0))`,
+		},
+	}, {
+		desc: "proto3: set optional enum new value",
+		in:   `m3.OptE = new(pb3.M3_E_VAL)`,
+		want: map[Level]string{
+			Green: `m3.SetOptE(pb3.M3_E_VAL)`,
 		},
 	}, {
 		desc:  "proto3: set message function result",
