@@ -754,8 +754,18 @@ func newConstructorCall(c *cursor, expr dst.Expr) (dst.Expr, bool) {
 		return nil, false
 	}
 
-	t := c.typeOf(call.Args[0])
+	// As of Go 1.26, the argument of new can be a value instead of a type:
+	// new(v) allocates a variable initialized to v, not to the zero value of
+	// a type. Only take that path when the type checker confirms the argument
+	// is a value; anything we cannot classify keeps the old type behavior.
+	arg := call.Args[0]
+	isValue := c.isValueExpr(arg)
+
+	t := c.typeOf(arg)
 	if t, ok := types.Unalias(t).(*types.Basic); ok {
+		if isValue {
+			return arg, true // new(true) => Set(true)
+		}
 		return scalarTypeZeroExpr(c, t), true
 	}
 
@@ -765,17 +775,20 @@ func newConstructorCall(c *cursor, expr dst.Expr) (dst.Expr, bool) {
 
 	// Message
 	if _, ok := t.Underlying().(*types.Struct); ok {
-		return call, true // new(M) is fine
+		return call, true // new(M) and new(msgValue) are fine
 	}
 
 	// Enum
 	if !isBasic(t.Underlying()) {
 		return nil, false
 	}
+	if isValue {
+		return arg, true // new(pb.Enum_VALUE) => Set(pb.Enum_VALUE)
+	}
 	zero := &dst.Ident{Name: "0"}
 	c.setType(zero, types.Typ[types.UntypedInt])
 	conv := &dst.CallExpr{
-		Fun:  call.Args[0],
+		Fun:  arg,
 		Args: []dst.Expr{zero},
 	}
 	c.setType(conv, t)

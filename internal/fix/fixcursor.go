@@ -164,6 +164,11 @@ func (c *cursor) isBuiltin(expr dst.Expr) bool {
 	return ok && tv.IsBuiltin()
 }
 
+func (c *cursor) isValueExpr(expr dst.Expr) bool {
+	tv, ok := c.typesInfo.types[expr]
+	return ok && tv.IsValue()
+}
+
 func (c *cursor) hasType(expr dst.Expr) bool {
 	return c.typesInfo.typeOf(expr) != nil
 }
